@@ -21,7 +21,7 @@ public class TCPClient
     	//create a socket to connect to localHost's (127.0.0.1) port 3339
         try 
         {
-			socket = new Socket("localHost", 3339);
+			socket = new Socket("10.111.130.20", 3339);
 			System.out.println("Connected!");
 		} 
         catch (UnknownHostException e) 
