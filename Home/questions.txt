@@ -1,0 +1,2 @@
+What are testing logs?
+Do we need protocol version as a instance variable?
