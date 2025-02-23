@@ -36,11 +36,17 @@ public class UDPClient //MODIFIED TO USE SERIALIZABLE DIRECT OBJECT SEND VIA OBJ
             // DatagramPacket sendPacket = new DatagramPacket(data, data.length, IPAddress, 9876);
             // Socket.send(sendPacket);
 
-        try (Socket socket = new Socket("localhost", 12345)) {
-            ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
-            objectOutputStream.writeObject(testProtocolPacket);
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
+        for (int c = 0; c < 3; c++) {
+            try (Socket socket = new Socket("localhost", 12345)) {
+                ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
+                objectOutputStream.writeObject(testProtocolPacket);
+                System.out.println("Sent object " + c);
+                Thread.sleep(5000);
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
+            } catch (InterruptedException ie) {
+                ie.printStackTrace();
+            }
         }
 
             System.out.println("Message sent from client");
