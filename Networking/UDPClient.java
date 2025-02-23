@@ -3,6 +3,7 @@ package Networking;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.*;
+import java.security.SecureRandom;
 /**
  * 
  * @author cjaiswal
@@ -36,20 +37,22 @@ public class UDPClient //MODIFIED TO USE SERIALIZABLE DIRECT OBJECT SEND VIA OBJ
             // DatagramPacket sendPacket = new DatagramPacket(data, data.length, IPAddress, 9876);
             // Socket.send(sendPacket);
 
-        for (int c = 0; c < 3; c++) {
-            try (Socket socket = new Socket("localhost", 12345)) {
-                ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
-                objectOutputStream.writeObject(testProtocolPacket);
-                System.out.println("Sent object " + c);
-                Thread.sleep(5000);
-            } catch (IOException ioe) {
-                ioe.printStackTrace();
-            } catch (InterruptedException ie) {
-                ie.printStackTrace();
-            }
-        }
+            SecureRandom random = new SecureRandom();
 
-            System.out.println("Message sent from client");
+            for (int c = 0; c < 3; c++) {
+                try (Socket socket = new Socket("localhost", 12345)) {
+                    ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
+                    objectOutputStream.writeObject(testProtocolPacket);
+                    System.out.println("Sent object " + c);
+                    Thread.sleep(random.nextInt(30)*1000);
+                } catch (IOException ioe) {
+                    ioe.printStackTrace();
+                } catch (InterruptedException ie) {
+                    ie.printStackTrace();
+                }
+            }
+
+            // System.out.println("Message sent from client");
             // DatagramPacket incomingPacket = new DatagramPacket(incomingData, incomingData.length);
             // Socket.receive(incomingPacket);
             // String response = new String(incomingPacket.getData());

@@ -25,6 +25,9 @@ public class HACProtocol implements Serializable { //what class format? javadoc 
         this.version = version;
         this.length = length;
         this.numNodes = numNodes; //how do i get this? is constructor ideal?
+
+        //scanner to read in ipconfig? set numNodes
+
         this.nodesUp = new boolean[numNodes];
         this.localFiles = localFiles;
     }
