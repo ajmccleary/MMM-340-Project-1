@@ -15,9 +15,11 @@ public class HACProtocol implements Serializable { //what class format? javadoc 
     //protocol packet data
     DatagramPacket packet;
 
+    //packet constructor
     public HACProtocol (byte[] data, InetAddress address, int port, String version, int sequenceNumber, int length, int numNodes, String[] localFiles) {
         //create and store packet
-        this.packet = new DatagramPacket(data, data.length, address, port);
+        //this.packet = new DatagramPacket(data, data.length, address, port);
+        
 
         //initialize protocol variables
         this.version = version;
