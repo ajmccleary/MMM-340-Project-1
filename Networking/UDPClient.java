@@ -1,6 +1,9 @@
 package Networking;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectInputStream;
 import java.net.*;
 /**
  * 
@@ -12,6 +15,7 @@ import java.net.*;
 public class UDPClient 
 {
     DatagramSocket Socket;
+    MyFileReader fileRec; 
 
     public UDPClient() 
     {
@@ -32,7 +36,19 @@ public class UDPClient
             System.out.println("Message sent from client");
             DatagramPacket incomingPacket = new DatagramPacket(incomingData, incomingData.length);
             Socket.receive(incomingPacket);
-            String response = new String(incomingPacket.getData());
+            //50/50 Broken ass code
+            ByteArrayInputStream bis = new ByteArrayInputStream(incomingPacket.getData());
+
+            try (ObjectInput in = new ObjectInputStream(bis)) {
+                fileRec = (MyFileReader)in.readObject(); 
+            } catch (Exception ex) {
+                throw new RuntimeException(ex);
+            }
+            
+            String response = new String(fileRec.getFiles().toString());
+            //50/50 Broken ass code
+            
+            
             System.out.println("Response from server:" + response);
             Socket.close();
         }

@@ -2,6 +2,7 @@ package Networking;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -10,7 +11,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class FileReader {
+public class MyFileReader implements Serializable {
     static ArrayList<Path> outList;
     static ArrayList<File> outFiles;
         // paths;
@@ -33,6 +34,9 @@ public class FileReader {
         }
         public List<Path> getFilePaths() {
             return outList;
+        }
+        public ArrayList<File> getFiles() {
+            return this.outFiles;
         }
         public static void main(String[] args) {
             System.out.println(FileReader().toString());

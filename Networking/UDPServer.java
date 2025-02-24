@@ -1,6 +1,8 @@
 package Networking;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -41,7 +43,18 @@ public class UDPServer
                 System.out.println("Client port:"+port);
                 
                 String reply = "Thank you for the message";
-                byte[] data = reply.getBytes();
+
+                //Random Code that 50/50 works to serialize object
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                try (ObjectOutputStream out = new ObjectOutputStream(bos)) {
+                    out.writeObject(new MyFileReader());
+                    out.flush();
+                } catch (Exception ex) {
+                    throw new RuntimeException(ex);
+                }
+                byte[] data = bos.toByteArray();
+                //Random Code that 50/50 works to serialize object
+                
                 
                 DatagramPacket replyPacket =
                         new DatagramPacket(data, data.length, IPAddress, port);
