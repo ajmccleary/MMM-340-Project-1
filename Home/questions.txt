@@ -1,3 +1,4 @@
 What are testing logs?
 Do we need protocol version as a instance variable?
-Format of ipconfig? Include number of nodes?
+Format of ipconfig? Include number of nodes or hard code that into HACProtocol when making array of upNodes?
+How do we use datagramsocket and serializable together? Do we need to use datagramsocket (says so in instructions)
