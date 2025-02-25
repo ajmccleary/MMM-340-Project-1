@@ -8,27 +8,19 @@ public class HACProtocol implements Serializable { //what class format? javadoc 
     String version; //protocol version (do we need this?)
     int sequenceNumber; //sequence of packet sent
     int length; //length of data
-    int numNodes; //number of nodes on network
+
+    //protocol data
     boolean nodesUp []; //array of booleans representing status of all other nodes
     String localFiles []; //array of file names on node
 
-    //protocol packet data
-    DatagramPacket packet;
-
     //packet constructor
-    public HACProtocol (byte[] data, InetAddress address, int port, String version, int sequenceNumber, int length, int numNodes, String[] localFiles) {
-        //create and store packet
-        //this.packet = new DatagramPacket(data, data.length, address, port);
-        
-
-        //initialize protocol variables
+    public HACProtocol (String version, int sequenceNumber, int length, String[] localFiles) {
+        //initialize protocol control fields
         this.version = version;
         this.length = length;
-        this.numNodes = numNodes; //how do i get this? is constructor ideal?
 
-        //scanner to read in ipconfig? set numNodes
-
-        this.nodesUp = new boolean[numNodes];
-        this.localFiles = localFiles;
+        //initialize protocol data
+        this.nodesUp = new boolean[6];
+        this.localFiles = localFiles; //input using Brady method
     }
 }

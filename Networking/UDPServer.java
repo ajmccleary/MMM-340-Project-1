@@ -1,6 +1,8 @@
 package Networking;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -27,12 +29,19 @@ public class UDPServer
             socket = new DatagramSocket(9876);
             byte[] incomingData = new byte[1024];
 
-            while (true) 
+            int c = 0;
+
+            while (c < 3) 
             {
-                DatagramPacket incomingPacket = new DatagramPacket(incomingData, 
-                		incomingData.length);
+                DatagramPacket incomingPacket = new DatagramPacket(incomingData, incomingData.length);
                 socket.receive(incomingPacket);
-                String message = new String(incomingPacket.getData());
+
+                //deserialize received packet
+                ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(incomingPacket.getData(), 0, incomingPacket.getLength());
+                ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream);
+                HACProtocol receivedObject = (HACProtocol) objectInputStream.readObject();
+
+                String message = receivedObject.version; //version used for now, would actually be data
                 InetAddress IPAddress = incomingPacket.getAddress();
                 int port = incomingPacket.getPort();
                 
@@ -43,13 +52,15 @@ public class UDPServer
                 String reply = "Thank you for the message";
                 byte[] data = reply.getBytes();
                 
-                DatagramPacket replyPacket =
-                        new DatagramPacket(data, data.length, IPAddress, port);
+                DatagramPacket replyPacket = new DatagramPacket(data, data.length, IPAddress, port);
                 
                 socket.send(replyPacket);
                 Thread.sleep(2000);
-                socket.close();
+
+                c++;
             }
+
+            socket.close();
         } 
         catch (SocketException e) 
         {
@@ -60,6 +71,9 @@ public class UDPServer
             i.printStackTrace();
         } 
         catch (InterruptedException e) 
+        {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) 
         {
             e.printStackTrace();
         }

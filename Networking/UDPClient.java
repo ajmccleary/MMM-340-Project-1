@@ -1,9 +1,12 @@
 package Networking;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.*;
 import java.security.SecureRandom;
+
+import javax.xml.crypto.Data;
 /**
  * 
  * @author cjaiswal
@@ -24,49 +27,54 @@ public class UDPClient //MODIFIED TO USE SERIALIZABLE DIRECT OBJECT SEND VIA OBJ
     {
         try 
         {
-            // Socket = new DatagramSocket();
+            Socket = new DatagramSocket();
             InetAddress IPAddress = InetAddress.getByName("localhost");
             byte[] incomingData = new byte[1024];
             String sentence = "Viehmann";
-            byte[] data = sentence.getBytes();
+            //byte[] data = sentence.getBytes();
 
             String testArray [] = {""};
 
-            HACProtocol testProtocolPacket = new HACProtocol(data, IPAddress, 12345, "doesn'tmatter", 0, 1, 1, testArray);
+            HACProtocol testProtocolPacket = new HACProtocol("doesn'tmatter", 0, 1, testArray);
 
-            // DatagramPacket sendPacket = new DatagramPacket(data, data.length, IPAddress, 9876);
+            //DatagramPacket sendPacket = new DatagramPacket(data, data.length, IPAddress, 9876);
             // Socket.send(sendPacket);
 
             SecureRandom random = new SecureRandom();
 
-            for (int c = 0; c < 3; c++) {
-                try (Socket socket = new Socket("localhost", 12345)) {
-                    ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
-                    objectOutputStream.writeObject(testProtocolPacket);
-                    System.out.println("Sent object " + c);
-                    Thread.sleep(random.nextInt(30)*1000);
-                } catch (IOException ioe) {
-                    ioe.printStackTrace();
-                } catch (InterruptedException ie) {
-                    ie.printStackTrace();
-                }
-            }
+            // for (int c = 0; c < 3; c++) {
+                //write protocol packet to byte array output stream
+                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
+                objectOutputStream.writeObject(testProtocolPacket);
 
-            // System.out.println("Message sent from client");
-            // DatagramPacket incomingPacket = new DatagramPacket(incomingData, incomingData.length);
-            // Socket.receive(incomingPacket);
-            // String response = new String(incomingPacket.getData());
-            // System.out.println("Response from server:" + response);
-            // Socket.close();
+                //convert to byte array
+                byte[] serializedObject = byteArrayOutputStream.toByteArray();
+
+                //send via UDP
+                DatagramPacket packet = new DatagramPacket(serializedObject, serializedObject.length, IPAddress, 9876);
+                Socket.send(packet);
+
+                //print object sent and pause before next loop
+                // System.out.println("Sent object " + c);
+                //Thread.sleep(random.nextInt(30)*1000);
+            // }
+
+            System.out.println("Message sent from client");
+            DatagramPacket incomingPacket = new DatagramPacket(incomingData, incomingData.length);
+            Socket.receive(incomingPacket);
+            String response = new String(incomingPacket.getData());
+            System.out.println("Response from server:" + response);
+            Socket.close();
         }
         catch (UnknownHostException e) 
         {
             e.printStackTrace();
         } 
-        // catch (SocketException e) 
-        // {
-        //     e.printStackTrace();
-        // } 
+        catch (SocketException e) 
+        {
+            e.printStackTrace();
+        }
         catch (IOException e) 
         {
             e.printStackTrace();
