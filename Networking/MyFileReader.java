@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class FileReader {
+public class MyFileReader {
     static ArrayList<Path> outList;
     static ArrayList<File> outFiles;
         // paths;
