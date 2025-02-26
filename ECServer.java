@@ -66,6 +66,9 @@ class ClientHandler implements Runnable {
             byte[] data = reply.getBytes();
             DatagramPacket replyPacket = new DatagramPacket(data, data.length, IPAddress, port);
             socket.send(replyPacket);
+
+            while (true)
+                System.out.println("WAOW MULTIPLE THREADS");
         } catch (IOException e) {
             e.printStackTrace();
         }

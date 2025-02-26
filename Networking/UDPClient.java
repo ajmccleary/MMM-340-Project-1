@@ -1,12 +1,14 @@
 package Networking;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.*;
 import java.security.SecureRandom;
+import java.util.Scanner;
 
-import javax.xml.crypto.Data;
 /**
  * 
  * @author cjaiswal
@@ -14,31 +16,41 @@ import javax.xml.crypto.Data;
  *  
  * 
  */
-public class UDPClient //MODIFIED TO USE SERIALIZABLE DIRECT OBJECT SEND VIA OBJECTOUTPUTSTREAM, TEST WITH PROTOCOLTESTSERVER.JAVA
+public class UDPClient
 {
     DatagramSocket Socket;
 
-    public UDPClient() 
-    {
+    //instance variables
+    public static int portNum;
 
-    }
+    //initialize scanner variables
+    public static Scanner fileInput;
+	public static File inFile = new File("ipConfig.txt");
+    public static String nextLine;
 
-    public void createAndListenSocket() 
+    public UDPClient() {
+        try {
+            fileInput = new Scanner(inFile);
+
+            nextLine = fileInput.nextLine();
+        } catch (FileNotFoundException e) { //catch potential error thrown by scanner
+			e.printStackTrace();
+		}
+
+        
+    } 
+
+    public void createAndListenSocket(int portNum) 
     {
         try 
         {
-            Socket = new DatagramSocket();
+            Socket = new DatagramSocket(portNum);
             InetAddress IPAddress = InetAddress.getByName("localhost");
             byte[] incomingData = new byte[1024];
-            String sentence = "Viehmann";
-            //byte[] data = sentence.getBytes();
 
             String testArray [] = {""};
 
             HACProtocol testProtocolPacket = new HACProtocol("doesn'tmatter", 0, 1, testArray);
-
-            //DatagramPacket sendPacket = new DatagramPacket(data, data.length, IPAddress, 9876);
-            // Socket.send(sendPacket);
 
             SecureRandom random = new SecureRandom();
 
@@ -47,6 +59,7 @@ public class UDPClient //MODIFIED TO USE SERIALIZABLE DIRECT OBJECT SEND VIA OBJ
                 ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
                 ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
                 objectOutputStream.writeObject(testProtocolPacket);
+                objectOutputStream.flush();
 
                 //convert to byte array
                 byte[] serializedObject = byteArrayOutputStream.toByteArray();
@@ -81,10 +94,15 @@ public class UDPClient //MODIFIED TO USE SERIALIZABLE DIRECT OBJECT SEND VIA OBJ
         }
     }
 
-    public static void main(String[] args) 
-    {
+    public static void main(String[] args) { //UDPClient Portnum
+        //get portnum of client
+        portNum = Integer.parseInt(args[0]);
+
+        //initialize client
         UDPClient client = new UDPClient();
-        client.createAndListenSocket();
+
+        //create and listen socket with custom port num
+        client.createAndListenSocket(portNum);
     }
 }
 

@@ -1,7 +1,6 @@
 package Networking;
 
 import java.io.Serializable;
-import java.net.*;
 
 public class HACProtocol implements Serializable { //what class format? javadoc needed? tostring etc needed?
     //protocol control fields
