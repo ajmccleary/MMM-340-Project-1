@@ -5,6 +5,8 @@ import java.util.ArrayList;
 
 import javax.swing.JFrame;
 
+import Networking.MyFileReader;
+
 
 public class MainScreen extends JFrame{
     private double lastUpdate;
@@ -28,6 +30,7 @@ public class MainScreen extends JFrame{
 
     public static void main(String[] args) {
         MainScreen mainScreen = new MainScreen();
+        mainScreen.addNode(new Node("198.3.6.7", 1234, MyFileReader.FileReader()));
         mainScreen.runLoop();
     }
     private void runLoop() {

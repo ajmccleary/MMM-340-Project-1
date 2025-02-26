@@ -17,7 +17,7 @@ public class NodeInfoScreen extends JPanel{
     Dimension size;
 
     public NodeInfoScreen(MainScreen frame, Node node) {
-        this.setLayout(new GridLayout());
+        this.setLayout(new GridLayout(3, 1));
         this.frame = frame; 
         size = new Dimension(80,200);
 

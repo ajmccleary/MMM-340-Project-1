@@ -20,6 +20,7 @@ public class Node {
         hasTimedOut = false;
         this.IPAddress = IPAddress;
         this.containedFiles = containedFiles;
+        this.isSelf = false;
     }
     
     public void heartbeatRecieved() { secSinceHeartbeat = 0; }
@@ -37,7 +38,11 @@ public class Node {
         }
         return directoryList;
     }
+    
+    public void setToSelf() {this.isSelf = true;}
+    public String getID() {return this.IPAddress + ":" + portNum;}
     public String getIP() { return this.IPAddress; }
+    public int getPort() { return this.portNum; }
     public ArrayList<File> getFileList() { return containedFiles; }
     public int getLastHrtBt() { return this.secSinceHeartbeat; }
 }
