@@ -17,7 +17,7 @@ public class ECServer {
 
     public void createAndListenSocket() {
         try {
-            socket = new DatagramSocket(9876);
+            socket = new DatagramSocket(4654);
             byte[] incomingData = new byte[1024];
 
             while (true) {

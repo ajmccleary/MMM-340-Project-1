@@ -9,16 +9,16 @@ import java.net.InetAddress;
 public class ECClient {
     private DatagramSocket socket;
     private InetAddress serverAddress;
-    private final int SERVER_PORT = 9876;
+    private final int SERVER_PORT = 4654;
 
-    // public ECClient() {
-    //     try {
-    //         socket = new DatagramSocket();
-    //         serverAddress = InetAddress.getByName("localhost"); // Change if needed
-    //     } catch (SocketException | IOException e) {
-    //         e.printStackTrace();
-    //     }
-    // }
+    public ECClient() {
+        try {
+            socket = new DatagramSocket();
+            serverAddress = InetAddress.getByName("localhost"); // Change if needed
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     public void sendPacket() {
         try {
@@ -59,6 +59,8 @@ public class ECClient {
 
     public static void main(String[] args) {
         ECClient client = new ECClient();
+        ECClient client2 = new ECClient();
         client.sendPacket();
+        client2.sendPacket();
     }
 }
