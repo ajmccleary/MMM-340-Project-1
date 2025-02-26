@@ -11,11 +11,13 @@ import Networking.MyFileReader;
 public class MainScreen extends JFrame{
     private double lastUpdate;
     private ArrayList<Node> nodeList; 
+    private ArrayList<NodeInfoScreen> infoList;
 
     private NodeInfoScreen nodeInfoScreen;
     public MainScreen() {
         super("Node Stats");
         nodeList = new ArrayList<Node>();
+        infoList = new ArrayList<NodeInfoScreen>();
         setLayout(new GridLayout(1, 6)); 
 
 
@@ -26,7 +28,8 @@ public class MainScreen extends JFrame{
     }
     public void addNode(Node node) {
         nodeList.add(node);
-        this.add(new NodeInfoScreen(this, node));
+        infoList.add(new NodeInfoScreen(this, node));
+        this.add(infoList.getLast());
     }
 
     public ArrayList<Node> getList() { return this.nodeList; }
@@ -40,9 +43,11 @@ public class MainScreen extends JFrame{
         lastUpdate = 0;
         while(true) {
             if(System.nanoTime()/1000000000-lastUpdate>=1) {
+                System.out.println("DEBUG: Second has passed");
                 lastUpdate = System.nanoTime()/1000000000;
                 //Ping all things that need updates once/sec here
                 for(Node node:nodeList) { node.heartbeat(); }
+                for(NodeInfoScreen infoItem: infoList) { infoItem.refresh();}
             }
         }
     }
