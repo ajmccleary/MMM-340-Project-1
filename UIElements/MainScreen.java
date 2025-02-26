@@ -17,6 +17,9 @@ public class MainScreen extends JFrame{
         super("Node Stats");
         nodeList = new ArrayList<Node>();
         setLayout(new GridLayout(1, 6)); 
+
+
+        
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.pack();
         this.setVisible(true);

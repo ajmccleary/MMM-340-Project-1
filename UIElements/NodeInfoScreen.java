@@ -33,5 +33,6 @@ public class NodeInfoScreen extends JPanel{
         this.add(fileList);
 
         this.setSize(this.size);
+        this.setPreferredSize(this.size);
     }
 }
