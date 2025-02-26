@@ -7,7 +7,10 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.*;
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.Scanner;
+
+import UIElements.Node;
 
 /**
  * 
@@ -22,22 +25,39 @@ public class UDPClient
 
     //instance variables
     public static int portNum;
+    public static Node[] networkNodes = new Node[5];
 
     //initialize scanner variables
     public static Scanner fileInput;
-	public static File inFile = new File("ipConfig.txt");
+	public static File inFile = new File("Networking\\ipConfig.txt");
     public static String nextLine;
 
     public UDPClient() {
         try {
+            //initialize scanner
             fileInput = new Scanner(inFile);
 
-            nextLine = fileInput.nextLine();
+            int count = 0;
+
+            do {
+                nextLine = fileInput.nextLine();
+                Node newNode = new Node(nextLine.substring(0,9), Integer.parseInt(nextLine.substring(10, 14)), new ArrayList<File>());
+                
+                //check if newNode is node representing this computer
+                if (newNode.getPort() != portNum) {
+                    //add node to networkNodes array
+                    networkNodes[count] = newNode;
+                    count++;
+                }
+            } while (fileInput.hasNextLine());
         } catch (FileNotFoundException e) { //catch potential error thrown by scanner
 			e.printStackTrace();
 		}
 
-        
+        System.out.println("DEBUG: ");
+        for (Node temp : networkNodes) {
+            System.out.println(temp.getID());
+        }
     } 
 
     public void createAndListenSocket(int portNum) 
