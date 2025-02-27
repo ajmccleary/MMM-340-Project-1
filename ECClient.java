@@ -6,13 +6,15 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ECClient {
     private DatagramSocket socket;
     private InetAddress serverAddress;
     private final int SERVER_PORT = 4654;
 
-    public ECClient() {
+    public ECClient() {      
         try {
             socket = new DatagramSocket();
             serverAddress = InetAddress.getByName("localhost"); // Change if needed
@@ -53,6 +55,7 @@ public class ECClient {
             objectOutputStream.close();
             byteArrayOutputStream.close();
             socket.close();
+
         } catch (IOException e) {
             e.printStackTrace();
         }

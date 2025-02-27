@@ -22,11 +22,10 @@ public class UDPServer
     {
 
     }
-    public void createAndListenSocket() 
-    {
-        try 
-        {
-            socket = new DatagramSocket(9876);
+    
+    public void createAndListenSocket() {
+        try {
+            socket = new DatagramSocket(8002);
             byte[] incomingData = new byte[1024];
 
             int c = 0;
