@@ -12,6 +12,7 @@ import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import UIElements.MainScreen;
 import UIElements.Node;
 
 /**
@@ -26,8 +27,7 @@ public class UDPClient {
     public static DatagramSocket Socket;
     public static ExecutorService executorService;
     public static int portNum;
-    public int numNodes = 5; 
-    public Node[] networkNodes = new Node[numNodes]; //convert to hashmap in mainscreen with address as key and node
+    public int numNodes = 5;
 
     //initialize scanner variables
     public static Scanner fileInput;
@@ -41,22 +41,18 @@ public class UDPClient {
             //initialize scanner
             fileInput = new Scanner(inFile);
 
-            //initialize count variable for number of nodes processed
-            int nodeCount = 0;
-
             //scan through file
             do {
                 //store next line input
                 nextLine = fileInput.nextLine();
 
-                //parse input and store in new node (along with files STILL NEED TO DO THAT)
+                //parse input and store in new node
                 Node newNode = new Node(nextLine.substring(0,9), Integer.parseInt(nextLine.substring(10, 14)), new ArrayList<File>());
                 
                 //check if newNode is NOT node representing this computer
-                if (newNode.getPort() != UDPClient.portNum) {
-                    //add node to networkNodes array
-                    this.networkNodes[nodeCount] = newNode;
-                    nodeCount++;
+                if (newNode.getPort() != UDPClient.portNum) { //need to change to take IP into account as well
+                    //add node to hash map (key is id)
+                    MainScreen.getMap().put(newNode.getID(), newNode);
                 }
             } while (fileInput.hasNextLine());
 
@@ -83,7 +79,7 @@ public class UDPClient {
                 e.printStackTrace();
             }
 
-            //access node (through hashmap) by ipadress from incomingpacket, then store its info (in node from incomingpacket) and do the node up node down shit
+            //AISLIN access node (through hashmap) by ipadress from incomingpacket, then store its info (in node from incomingpacket using setFileNames) and do the node up node down shit (make a new array of booleans for if a node is up or down)
             
 
             //print data received (will later process data)
@@ -107,7 +103,7 @@ public class UDPClient {
             }
 
             try {
-                for (Node currentNode : this.networkNodes) {
+                for (Node currentNode : MainScreen.getMap().values()) {
                     //get IP adress from current node
                     InetAddress IPAddress = InetAddress.getByName(currentNode.getIP());
 

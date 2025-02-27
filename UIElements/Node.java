@@ -42,6 +42,10 @@ public class Node {
         return directoryList;
     }
 
+    public void setFileNames(ArrayList<File> files) {
+        this.containedFiles = files;
+    }
+
     public void setToSelf() {this.isSelf = true;}
     public String getID() {return (this.IPAddress + ":" + portNum);}
     public String getIP() { return this.IPAddress; }
