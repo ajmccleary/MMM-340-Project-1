@@ -1,3 +1,5 @@
 What are testing logs?
 Do we need protocol version as a instance variable?
 Do I need a datagram packet inside my protocol?
+Is using subclasses fine for runnables for executorservice?
+Do we need a regex lock on Socket? Or no because its never changed?

@@ -34,24 +34,10 @@ public class UDPClient {
 	public static File inFile = new File("Networking\\ipConfig.txt");
     public static String nextLine;
 
-    //initialize threads
-    class SendingThread implements Runnable {
-        UDPClient client;
-
-        public SendingThread(UDPClient client) {
-            this.client = client;
-        }
-    
-        @Override
-        public void run() {
-            this.client.createAndListenSocket();
-        }
-    }
-
-    //receivingThread
-
     public UDPClient() {
         try {
+            UDPClient.Socket = new DatagramSocket(UDPClient.portNum);
+
             //initialize scanner
             fileInput = new Scanner(inFile);
 
@@ -76,61 +62,81 @@ public class UDPClient {
 
         } catch (FileNotFoundException e) { //catch potential error thrown by scanner
 			e.printStackTrace();
-		}
-    } 
-
-    public void createAndListenSocket() {
-        try {
-            Socket = new DatagramSocket(UDPClient.portNum);
-            SecureRandom random = new SecureRandom();
-
-            for (Node currentNode : this.networkNodes) {
-                InetAddress IPAddress = InetAddress.getByName(currentNode.getIP());
-
-                String testArray [] = {""};
-
-                HACProtocol testProtocolPacket = new HACProtocol("doesn'tmatter", 0, 1, testArray);
-
-                //write protocol packet to byte array output stream
-                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
-                objectOutputStream.writeObject(testProtocolPacket);
-
-                //convert to byte array
-                byte[] serializedObject = byteArrayOutputStream.toByteArray();
-
-                //send via UDP
-                DatagramPacket packet = new DatagramPacket(serializedObject, serializedObject.length, IPAddress, currentNode.getPort());
-                Socket.send(packet);
-
-                //pause for random time (0-30s) before next loop
-                Thread.sleep(random.nextInt(30)*1000);
-
-                //close out resources
-                byteArrayOutputStream.close();
-                objectOutputStream.close();
-            }            
-
-            //to be moved to ListeningThread
-            byte[] incomingData = new byte[1024];
-            System.out.println("Message sent from client");
-            DatagramPacket incomingPacket = new DatagramPacket(incomingData, incomingData.length);
-            Socket.receive(incomingPacket);
-            String response = new String(incomingPacket.getData());
-            System.out.println("Response from server:" + response);
-
-            //close Socket
-            Socket.close();
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        } 
-        catch (SocketException e) {
+		} catch (SocketException e) {
             e.printStackTrace();
         }
-        catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+    }
+
+    public void createAndListenSocket() {
+        //loop indefinitely
+        while (true) {
+            System.out.println("Receiving");
+
+            //initialize holder for incoming data
+            byte[] incomingData = new byte[1024];
+            DatagramPacket incomingPacket = new DatagramPacket(incomingData, incomingData.length);
+
+            //receive incoming data
+            try {
+                UDPClient.Socket.receive(incomingPacket); //UDPClient.Socket
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            //print data received (will later process data)
+            String response = new String(incomingPacket.getData());
+            System.out.println("Response from server:" + response);
+        }
+    }
+
+    public void sendPulse() {
+        //initialize rng
+        SecureRandom random = new SecureRandom();
+
+        //loop indefinitely
+        while (true) {
+            try {
+                System.out.println("SENDING");
+                //pause for random time (0-30s) before next loop
+                Thread.sleep(random.nextInt(30)*1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            try {
+                for (Node currentNode : this.networkNodes) {
+                    //get IP adress from current node
+                    InetAddress IPAddress = InetAddress.getByName(currentNode.getIP());
+
+                    //temp make shitty test packet
+                    String testArray [] = {""};
+                    HACProtocol testProtocolPacket = new HACProtocol("doesn'tmatter", 0, 1, testArray);
+
+                    //write protocol packet to byte array output stream
+                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                    ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
+                    objectOutputStream.writeObject(testProtocolPacket);
+
+                    //convert to byte array
+                    byte[] serializedObject = byteArrayOutputStream.toByteArray();
+
+                    //send via UDP
+                    DatagramPacket packet = new DatagramPacket(serializedObject, serializedObject.length, IPAddress, currentNode.getPort());
+                    Socket.send(packet);
+
+                    //close out resources
+                    byteArrayOutputStream.close();
+                    objectOutputStream.close();
+                }
+            } catch (UnknownHostException e) {
+                e.printStackTrace();
+            } 
+            catch (SocketException e) {
+                e.printStackTrace();
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -142,12 +148,14 @@ public class UDPClient {
         UDPClient client = new UDPClient();
 
         //initialize threadpool
-        executorService = Executors.newFixedThreadPool(2); // Create a thread pool with 2 threads (may modify)
+        executorService = Executors.newFixedThreadPool(10); // Create a thread pool with 2 threads (may modify)
 
-        //create and listen socket with custom port num
-        client.createAndListenSocket();
+        //execute receiving thread
+        executorService.submit(() -> client.createAndListenSocket());
 
-        //execute sending thread
-        executorService.execute(client.new SendingThread(client));
+        //send pulse to other nodes on main thread
+        while (true)
+            client.sendPulse();
+
     }
 }
