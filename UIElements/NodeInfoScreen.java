@@ -26,7 +26,7 @@ public class NodeInfoScreen extends JPanel{
         IP = new JLabel("");
         hrtBt = new JLabel("");
         fileList = new JLabel("");
-        IP.setText("IP: " + node.getIP());
+        IP.setText("ID: " + node.getID());
         hrtBt.setText("Last Heartbeat Recieved " + node.getLastHrtBt() + " seconds ago");
         fileList.setText("Node File List: " + node.getFileNames());
 
@@ -38,10 +38,11 @@ public class NodeInfoScreen extends JPanel{
         this.setPreferredSize(this.size);
     }
     public void refresh() {
-        IP.setText("IP: " + node.getIP());
+        //IP.setText("ID: " + node.getID());
         hrtBt.setText("Last Heartbeat Recieved " + node.getLastHrtBt() + " seconds ago");
         fileList.setText("Node File List: " + node.getFileNames());
         this.revalidate();
         this.repaint();
     }
+    public Node getNode() {return this.node;}
 }
