@@ -26,8 +26,8 @@ public class UDPClient {
     public static DatagramSocket Socket;
     public static ExecutorService executorService;
     public static int portNum;
-    public int numNodes = 5;
-    public Node[] networkNodes = new Node[numNodes];
+    public int numNodes = 5; 
+    public Node[] networkNodes = new Node[numNodes]; //convert to hashmap in mainscreen with address as key and node
 
     //initialize scanner variables
     public static Scanner fileInput;
@@ -67,10 +67,10 @@ public class UDPClient {
         }
     }
 
-    public void createAndListenSocket() {
+    public void listenSocket() {
         //loop indefinitely
         while (true) {
-            System.out.println("Receiving");
+            System.out.println("RECEIVING");
 
             //initialize holder for incoming data
             byte[] incomingData = new byte[1024];
@@ -82,6 +82,9 @@ public class UDPClient {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+
+            //access node (through hashmap) by ipadress from incomingpacket, then store its info (in node from incomingpacket) and do the node up node down shit
+            
 
             //print data received (will later process data)
             String response = new String(incomingPacket.getData());
@@ -108,7 +111,7 @@ public class UDPClient {
                     //get IP adress from current node
                     InetAddress IPAddress = InetAddress.getByName(currentNode.getIP());
 
-                    //temp make shitty test packet
+                    //temp make shitty test packet - use myFileReader method to get and then store files
                     String testArray [] = {""};
                     HACProtocol testProtocolPacket = new HACProtocol("doesn'tmatter", 0, 1, testArray);
 
@@ -148,14 +151,16 @@ public class UDPClient {
         UDPClient client = new UDPClient();
 
         //initialize threadpool
-        executorService = Executors.newFixedThreadPool(10); // Create a thread pool with 2 threads (may modify)
+        executorService = Executors.newFixedThreadPool(2);
 
         //execute receiving thread
-        executorService.submit(() -> client.createAndListenSocket());
+        executorService.submit(() -> client.listenSocket());
 
-        //send pulse to other nodes on main thread
-        while (true)
-            client.sendPulse();
+        //execute sending thread
+        executorService.submit(() -> client.sendPulse());
 
+        //logic for determining if a node is down here - in seperate thread?
+
+        //perioidically print node data - in seperate thread?
     }
 }
