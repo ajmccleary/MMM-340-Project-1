@@ -26,8 +26,6 @@ public class Node {
         this.isSelf = false;
     }
     
-    public void heartbeatRecieved() { secSinceHeartbeat = 0; }
-    public void heartbeat() { secSinceHeartbeat++;}
     public boolean timeOut() {
         if(secSinceHeartbeat > 30) {
             hasTimedOut = true;
@@ -42,7 +40,11 @@ public class Node {
         return directoryList;
     }
 
+    public void heartbeatRecieved() { secSinceHeartbeat = 0; }
+    public void heartbeat() { secSinceHeartbeat++;}
+
     public void setToSelf() {this.isSelf = true;}
+    public void unSetToSelf() {this.isSelf = false;}
     public String getID() {return (this.IPAddress + ":" + portNum);}
     public String getIP() { return this.IPAddress; }
     public int getPort() { return this.portNum; }
