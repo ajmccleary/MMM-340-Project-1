@@ -22,8 +22,6 @@ public class MainScreen extends JFrame{
         nodeMap = new HashMap<String,Node>();
         infoList = new ArrayList<NodeInfoScreen>();
         setLayout(new GridLayout(1, 6)); 
-
-
         
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.pack();
