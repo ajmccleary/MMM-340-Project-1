@@ -1,16 +1,10 @@
 package Networking;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.*;
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.Scanner;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.*;
+import java.util.concurrent.*;
 
 import UIElements.MainScreen;
 import UIElements.Node;
@@ -24,15 +18,15 @@ import UIElements.Node;
  */
 public class UDPClient {
     //instance variables
-    public static DatagramSocket Socket;
-    public static ExecutorService executorService;
-    public static int portNum;
-    public int numNodes = 5;
+    private static DatagramSocket Socket;
+    private static ExecutorService executorService;
+    private static int portNum;
+    private static HashMap<String,Node> nodeMap = new HashMap<String,Node>();
 
     //initialize scanner variables
-    public static Scanner fileInput;
-	public static File inFile = new File("Networking\\ipConfig.txt");
-    public static String nextLine;
+    private static Scanner fileInput;
+	private static File inFile = new File("Networking\\ipConfig.txt");
+    private static String nextLine;
 
     public UDPClient() {
         try {
@@ -52,7 +46,7 @@ public class UDPClient {
                 //check if newNode is NOT node representing this computer
                 if (newNode.getPort() != UDPClient.portNum) { //need to change to take IP into account as well
                     //add node to hash map (key is id)
-                    MainScreen.getMap().put(newNode.getID(), newNode);
+                    nodeMap.put(newNode.getID(), newNode);
                 }
             } while (fileInput.hasNextLine());
 
@@ -103,7 +97,7 @@ public class UDPClient {
             }
 
             try {
-                for (Node currentNode : MainScreen.getMap().values()) {
+                for (Node currentNode : nodeMap.values()) {
                     //get IP adress from current node
                     InetAddress IPAddress = InetAddress.getByName(currentNode.getIP());
 
@@ -138,6 +132,9 @@ public class UDPClient {
             }
         }
     }
+
+    //getters
+    public static HashMap<String, Node> getMap() {return nodeMap;}
 
     public static void main(String[] args) { //Portnum (0)
         //get portnum of client

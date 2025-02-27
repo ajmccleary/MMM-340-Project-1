@@ -7,15 +7,16 @@ import java.util.HashMap;
 import javax.swing.JFrame;
 
 import Networking.MyFileReader;
+import Networking.UDPClient;
 
 
 public class MainScreen extends JFrame{
     private double lastUpdate;
     private ArrayList<Node> nodeList; 
     private ArrayList<NodeInfoScreen> infoList; //Will be obsolete when map is fully implemented
-    private static HashMap<String,Node> nodeMap = new HashMap<String,Node>();
 
     private NodeInfoScreen nodeInfoScreen;
+
     public MainScreen() {
         super("Node Stats");
         nodeList = new ArrayList<Node>();
@@ -28,13 +29,12 @@ public class MainScreen extends JFrame{
     }
     public void addNode(Node node) {
         nodeList.add(node);
-        nodeMap.put(node.getID(), node);
+        UDPClient.getMap().put(node.getID(), node);
         infoList.add(new NodeInfoScreen(this, node));
         this.add(infoList.getLast());
     }
 
     public ArrayList<Node> getList() { return this.nodeList; }
-    public static HashMap<String, Node> getMap() {return nodeMap;}
 
     public static void main(String[] args) {
         MainScreen mainScreen = new MainScreen();
