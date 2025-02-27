@@ -13,7 +13,7 @@ public class MainScreen extends JFrame{
     private double lastUpdate;
     private ArrayList<Node> nodeList; 
     private ArrayList<NodeInfoScreen> infoList; //Will be obsolete when map is fully implemented
-    private HashMap<String,Node> nodeMap;
+    private static HashMap<String,Node> nodeMap;
 
     private NodeInfoScreen nodeInfoScreen;
     public MainScreen() {
@@ -37,7 +37,7 @@ public class MainScreen extends JFrame{
     }
 
     public ArrayList<Node> getList() { return this.nodeList; }
-    public HashMap<String, Node> getMap() {return this.nodeMap;}
+    public static HashMap<String, Node> getMap() {return nodeMap;}
 
     public static void main(String[] args) {
         MainScreen mainScreen = new MainScreen();
