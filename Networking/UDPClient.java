@@ -12,6 +12,7 @@ import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import UIElements.MainScreen;
 import UIElements.Node;
 
 /**
@@ -27,7 +28,6 @@ public class UDPClient {
     public static ExecutorService executorService;
     public static int portNum;
     public int numNodes = 5;
-    public Node[] networkNodes = new Node[numNodes];
 
     //initialize scanner variables
     public static Scanner fileInput;
@@ -41,22 +41,18 @@ public class UDPClient {
             //initialize scanner
             fileInput = new Scanner(inFile);
 
-            //initialize count variable for number of nodes processed
-            int nodeCount = 0;
-
             //scan through file
             do {
                 //store next line input
                 nextLine = fileInput.nextLine();
 
-                //parse input and store in new node (along with files STILL NEED TO DO THAT)
+                //parse input and store in new node
                 Node newNode = new Node(nextLine.substring(0,9), Integer.parseInt(nextLine.substring(10, 14)), new ArrayList<File>());
                 
                 //check if newNode is NOT node representing this computer
-                if (newNode.getPort() != UDPClient.portNum) {
-                    //add node to networkNodes array
-                    this.networkNodes[nodeCount] = newNode;
-                    nodeCount++;
+                if (newNode.getPort() != UDPClient.portNum) { //need to change to take IP into account as well
+                    //add node to hash map (key is id)
+                    MainScreen.getMap().put(newNode.getID(), newNode);
                 }
             } while (fileInput.hasNextLine());
 
@@ -67,10 +63,10 @@ public class UDPClient {
         }
     }
 
-    public void createAndListenSocket() {
+    public void listenSocket() {
         //loop indefinitely
         while (true) {
-            System.out.println("Receiving");
+            System.out.println("RECEIVING");
 
             //initialize holder for incoming data
             byte[] incomingData = new byte[1024];
@@ -82,6 +78,9 @@ public class UDPClient {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+
+            //AISLIN access node (through hashmap) by ipadress from incomingpacket, then store its info (in node from incomingpacket using setFileNames) and do the node up node down shit (make a new array of booleans for if a node is up or down)
+            
 
             //print data received (will later process data)
             String response = new String(incomingPacket.getData());
@@ -104,11 +103,11 @@ public class UDPClient {
             }
 
             try {
-                for (Node currentNode : this.networkNodes) {
+                for (Node currentNode : MainScreen.getMap().values()) {
                     //get IP adress from current node
                     InetAddress IPAddress = InetAddress.getByName(currentNode.getIP());
 
-                    //temp make shitty test packet
+                    //temp make shitty test packet - use myFileReader method to get and then store files
                     String testArray [] = {""};
                     HACProtocol testProtocolPacket = new HACProtocol("doesn'tmatter", 0, 1, testArray);
 
@@ -148,14 +147,16 @@ public class UDPClient {
         UDPClient client = new UDPClient();
 
         //initialize threadpool
-        executorService = Executors.newFixedThreadPool(10); // Create a thread pool with 2 threads (may modify)
+        executorService = Executors.newFixedThreadPool(2);
 
         //execute receiving thread
-        executorService.submit(() -> client.createAndListenSocket());
+        executorService.submit(() -> client.listenSocket());
 
-        //send pulse to other nodes on main thread
-        while (true)
-            client.sendPulse();
+        //execute sending thread
+        executorService.submit(() -> client.sendPulse());
 
+        //logic for determining if a node is down here - in seperate thread?
+
+        //perioidically print node data - in seperate thread?
     }
 }

@@ -13,17 +13,14 @@ public class MainScreen extends JFrame{
     private double lastUpdate;
     private ArrayList<Node> nodeList; 
     private ArrayList<NodeInfoScreen> infoList; //Will be obsolete when map is fully implemented
-    private static HashMap<String,Node> nodeMap;
+    private static HashMap<String,Node> nodeMap = new HashMap<String,Node>();
 
     private NodeInfoScreen nodeInfoScreen;
     public MainScreen() {
         super("Node Stats");
         nodeList = new ArrayList<Node>();
-        nodeMap = new HashMap<String,Node>();
         infoList = new ArrayList<NodeInfoScreen>();
         setLayout(new GridLayout(1, 6)); 
-
-
         
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.pack();
