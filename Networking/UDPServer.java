@@ -25,7 +25,7 @@ public class UDPServer
     
     public void createAndListenSocket() {
         try {
-            socket = new DatagramSocket(8002);
+            socket = new DatagramSocket(8001);
             byte[] incomingData = new byte[1024];
 
             int c = 0;

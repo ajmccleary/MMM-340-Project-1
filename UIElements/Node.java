@@ -40,7 +40,9 @@ public class Node {
         return directoryList;
     }
 
-    
+    public Boolean isNodeSelf() {
+        return this.isSelf;
+    }
     
 
     public void heartbeatRecieved() { secSinceHeartbeat = 0; }
