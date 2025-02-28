@@ -75,7 +75,7 @@ public class UDPClient {
         }
     }
 
-    public void listenSocket() {
+    public void listenSocket() throws ClassNotFoundException {
         //loop indefinitely
         while (true) {
             System.out.println("RECEIVING");
@@ -84,15 +84,44 @@ public class UDPClient {
             byte[] incomingData = new byte[1024];
             DatagramPacket incomingPacket = new DatagramPacket(incomingData, incomingData.length);
 
-            //receive incoming data
+            
             try {
+                //receive incoming data
                 UDPClient.Socket.receive(incomingPacket);
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
+            //deserialize recieved packet
+            HACProtocol receivedPacket = null;
+            try(ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(incomingPacket.getData());
+                ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream)){
+
+                    receivedPacket = (HACProtocol) objectInputStream.readObject();
+                }catch (IOException e){
+                    e.printStackTrace();
+                    continue; // skip to the next loop iteration if deserialization fails 
+                }
+
             //AISLIN access node (through hashmap) by ipadress from incomingpacket, then store its info (in node from incomingpacket using setFileNames) and do the node up node down shit (make a new array of booleans for if a node is up or down)
             
+            //access node by IP addy from incomingPacket (through hashmap)
+            String senderIP = incomingPacket.getAddress().getHostAddress();
+            Node senderNode = nodeMap.get(senderIP);
+
+            if(senderNode != null){
+                //store the info (update file list)
+                senderNode.setFileNames(Arrays.asList(receivedPacket.getFilePath()));
+
+                //update node stauts
+                boolean[] nodeStatus = receivedPacket.nodesUp();
+
+                //print updated node info (debug)
+                System.out.println("Updated Node: " + senderNode.getID() + " - Files: " + senderNode.getFileNames());
+                System.out.println("Node Status: " + Arrays.toString(nodeStatus));
+            } else {
+                 System.out.println("Received packet from unknown node: " + senderIP);
+            }
 
             //print data received (will later process data)
             String response = new String(incomingPacket.getData());
