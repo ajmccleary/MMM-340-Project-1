@@ -111,10 +111,10 @@ public class UDPClient {
 
             if(senderNode != null){
                 //store the info (update file list)
-                senderNode.setFileNames(Arrays.asList(receivedPacket.getFilePath()));
+                senderNode.setFileNames(senderNode.getFileList());
 
                 //update node stauts
-                boolean[] nodeStatus = receivedPacket.nodesUp();
+                boolean[] nodeStatus = receivedPacket.nodesUp;
 
                 //print updated node info (debug)
                 System.out.println("Updated Node: " + senderNode.getID() + " - Files: " + senderNode.getFileNames());
