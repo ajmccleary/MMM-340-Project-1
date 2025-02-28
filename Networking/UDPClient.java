@@ -91,7 +91,7 @@ public class UDPClient {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
+            
             //deserialize recieved packet
             HACProtocol receivedPacket = null;
             try(ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(incomingPacket.getData());
@@ -111,7 +111,7 @@ public class UDPClient {
 
             if(senderNode != null){
                 //store the info (update file list)
-                senderNode.setFileNames(senderNode.getFileList());
+                senderNode.setFiles(new ArrayList<File>(Arrays.asList(receivedPacket.localFiles)));
 
                 //update node stauts
                 boolean[] nodeStatus = receivedPacket.nodesUp;
@@ -144,7 +144,7 @@ public class UDPClient {
                 //loop through nodes in node map
                 for (Node currentNode : nodeMap.values()) {
                     //temp make shitty test packet - use myFileReader method to get and then store files
-                    String testArray [] = {""};
+                    File testArray[] = (File[])MyFileReader.FileReader().toArray();
                     HACProtocol testProtocolPacket = new HACProtocol("doesn'tmatter", 0, 1, testArray);
 
                     //write protocol packet to byte array output stream
