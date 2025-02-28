@@ -9,11 +9,14 @@ package UIElements;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.text.JTextComponent;
+
 import java.awt.*;
 
 public class NodeInfoScreen extends JPanel{
     private MainScreen frame;
     private JLabel IP, hrtBt, fileList;
+    private JTextComponent fileTestList;
     private Node node;
     Dimension size;
 
