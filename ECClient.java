@@ -1,5 +1,8 @@
 import Networking.HACProtocol;
+import Networking.MyFileReader;
+
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
@@ -26,7 +29,7 @@ public class ECClient {
     public void sendPacket() {
         try {
             // Creating HACProtocol object
-            String[] testArray = {"data1", "data2"};
+            File[] testArray = (File[])MyFileReader.FileReader().toArray();
             HACProtocol testProtocolPacket = new HACProtocol("ClientPacket", 1, 1, testArray);
 
             // Serialize HACProtocol object to byte array
