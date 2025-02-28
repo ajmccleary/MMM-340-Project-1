@@ -47,7 +47,7 @@ public class Node {
 
     public void heartbeatRecieved() { secSinceHeartbeat = 0; }
     public void heartbeat() { secSinceHeartbeat++;}
-    public void setFileNames(ArrayList<File> files) {this.containedFiles = files;}
+    public void setFiles(ArrayList<File> files) {this.containedFiles = files;}
 
     public void setToSelf() {this.isSelf = true;}
     public void unSetToSelf() {this.isSelf = false;}
