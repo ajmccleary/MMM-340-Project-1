@@ -189,7 +189,12 @@ public class UDPClient {
         executorService = Executors.newFixedThreadPool(2);
 
         //execute receiving thread
-        executorService.submit(() -> client.listenSocket());
+        executorService.submit(() -> {
+            try {
+                client.listenSocket();
+            } catch (ClassNotFoundException ex) {
+            }
+        });
 
         //execute sending thread
         executorService.submit(() -> client.sendPulse());
