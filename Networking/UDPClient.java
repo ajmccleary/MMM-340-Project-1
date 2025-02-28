@@ -1,18 +1,11 @@
 package Networking;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.*;
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.Scanner;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.*;
+import java.util.concurrent.*;
 
-import UIElements.MainScreen;
 import UIElements.Node;
 
 /**
@@ -24,19 +17,22 @@ import UIElements.Node;
  */
 public class UDPClient {
     //instance variables
-    public static DatagramSocket Socket;
-    public static ExecutorService executorService;
-    public static int portNum;
-    public int numNodes = 5;
+    private static DatagramSocket Socket;
+    private static ExecutorService executorService;
+    private static int nodeNum; //0-6, correlate to line of ipconfig to assign socket to
+    private static int portNum;
+    private static InetAddress ipAddress;
+    private static HashMap<String,Node> nodeMap = new HashMap<String,Node>();
 
     //initialize scanner variables
-    public static Scanner fileInput;
-	public static File inFile = new File("Networking\\ipConfig.txt");
-    public static String nextLine;
+    private static Scanner fileInput;
+	private static File inFile = new File("Networking\\ipConfig.txt");
+    private static String nextLine;
 
     public UDPClient() {
         try {
-            UDPClient.Socket = new DatagramSocket(UDPClient.portNum);
+            //initialize count variable
+            int count = 0;
 
             //initialize scanner
             fileInput = new Scanner(inFile);
@@ -48,17 +44,33 @@ public class UDPClient {
 
                 //parse input and store in new node
                 Node newNode = new Node(nextLine.substring(0,9), Integer.parseInt(nextLine.substring(10, 14)), new ArrayList<File>());
-                
-                //check if newNode is NOT node representing this computer
-                if (newNode.getPort() != UDPClient.portNum) { //need to change to take IP into account as well
-                    //add node to hash map (key is id)
-                    MainScreen.getMap().put(newNode.getID(), newNode);
+
+                //check if count matches assigned client node num
+                if (count == UDPClient.nodeNum) {
+                    newNode.setToSelf();
+                    UDPClient.ipAddress = InetAddress.getByName(newNode.getIP());
+                    UDPClient.portNum = newNode.getPort();
                 }
+
+                //check if newNode is NOT node representing this computer
+                if (!newNode.isNodeSelf()) {
+                    //add node to hash map (key is id)
+                    nodeMap.put(newNode.getID(), newNode);
+                }
+
+                count++;
             } while (fileInput.hasNextLine());
 
         } catch (FileNotFoundException e) { //catch potential error thrown by scanner
 			e.printStackTrace();
-		} catch (SocketException e) {
+		} catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+
+        //connect to specified socket
+        try {
+            UDPClient.Socket = new DatagramSocket(UDPClient.portNum, UDPClient.ipAddress);
+        } catch (SocketException e) {
             e.printStackTrace();
         }
     }
@@ -74,7 +86,7 @@ public class UDPClient {
 
             //receive incoming data
             try {
-                UDPClient.Socket.receive(incomingPacket); //UDPClient.Socket
+                UDPClient.Socket.receive(incomingPacket);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -93,20 +105,15 @@ public class UDPClient {
         SecureRandom random = new SecureRandom();
 
         //loop indefinitely
-        while (true) {
+        while (true) {             
+            System.out.println("SENDING");
+
             try {
-                System.out.println("SENDING");
                 //pause for random time (0-30s) before next loop
                 Thread.sleep(random.nextInt(30)*1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
 
-            try {
-                for (Node currentNode : MainScreen.getMap().values()) {
-                    //get IP adress from current node
-                    InetAddress IPAddress = InetAddress.getByName(currentNode.getIP());
-
+                //loop through nodes in node map
+                for (Node currentNode : nodeMap.values()) {
                     //temp make shitty test packet - use myFileReader method to get and then store files
                     String testArray [] = {""};
                     HACProtocol testProtocolPacket = new HACProtocol("doesn'tmatter", 0, 1, testArray);
@@ -120,28 +127,31 @@ public class UDPClient {
                     byte[] serializedObject = byteArrayOutputStream.toByteArray();
 
                     //send via UDP
-                    DatagramPacket packet = new DatagramPacket(serializedObject, serializedObject.length, IPAddress, currentNode.getPort());
+                    DatagramPacket packet = new DatagramPacket(serializedObject, serializedObject.length, InetAddress.getByName(currentNode.getIP()), currentNode.getPort());
                     Socket.send(packet);
 
                     //close out resources
                     byteArrayOutputStream.close();
                     objectOutputStream.close();
                 }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             } catch (UnknownHostException e) {
                 e.printStackTrace();
-            } 
-            catch (SocketException e) {
+            } catch (SocketException e) {
                 e.printStackTrace();
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    public static void main(String[] args) { //Portnum (0)
-        //get portnum of client
-        UDPClient.portNum = Integer.parseInt(args[0]);
+    //getters
+    public static HashMap<String, Node> getMap() {return nodeMap;}
+
+    public static void main(String[] args) { //nodeNum (0)
+        //get node number of client from command line args
+        UDPClient.nodeNum = Integer.parseInt(args[0]);
 
         //initialize client
         UDPClient client = new UDPClient();
