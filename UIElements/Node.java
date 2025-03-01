@@ -19,8 +19,7 @@ public class Node {
     public Node(String IPAddress, int portNum, ArrayList<File> containedFiles) {
         this.IPAddress = IPAddress;
         this.portNum = portNum;
-
-        hasTimedOut = false;
+        this.hasTimedOut = false;
         this.IPAddress = IPAddress;
         this.containedFiles = containedFiles;
         this.isSelf = false;
