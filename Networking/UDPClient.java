@@ -61,6 +61,9 @@ public class UDPClient {
                 count++;
             } while (fileInput.hasNextLine());
 
+            //close scanner
+            fileInput.close();
+
         } catch (FileNotFoundException e) { //catch potential error thrown by scanner
 			e.printStackTrace();
 		} catch (UnknownHostException e) {
@@ -75,7 +78,8 @@ public class UDPClient {
         }
     }
 
-    public void listenSocket() throws ClassNotFoundException {
+    //thread function to listen for incoming packets
+    public void listenSocket() {
         //loop indefinitely
         while (true) {
             System.out.println("RECEIVING");
@@ -101,6 +105,8 @@ public class UDPClient {
                 }catch (IOException e){
                     e.printStackTrace();
                     continue; // skip to the next loop iteration if deserialization fails 
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
                 }
 
             //AISLIN access node (through hashmap) by ipadress from incomingpacket, then store its info (in node from incomingpacket using setFileNames) and do the node up node down shit (make a new array of booleans for if a node is up or down)
@@ -129,6 +135,7 @@ public class UDPClient {
         }
     }
 
+    //thread function to send heartbeat packets to all other nodes
     public void sendPulse() {
         //initialize rng
         SecureRandom random = new SecureRandom();
@@ -189,18 +196,35 @@ public class UDPClient {
         executorService = Executors.newFixedThreadPool(2);
 
         //execute receiving thread
-        executorService.submit(() -> {
-            try {
-                client.listenSocket();
-            } catch (ClassNotFoundException ex) {
-            }
-        });
+        executorService.submit(() -> client.listenSocket());
 
         //execute sending thread
         executorService.submit(() -> client.sendPulse());
 
         //logic for determining if a node is down here - in seperate thread?
 
-        //perioidically print node data - in seperate thread?
+        //perioidically print node data
+        while (true) {
+            //print header
+            System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+            System.out.println("Outputting Network Data");
+            System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+
+            //print data for each node
+            for (Node currentNode : nodeMap.values()) {
+                System.out.printf("Node: %s is UP (hardcoded rn)%n", currentNode.getID());
+                System.out.println("\tFiles:");
+                System.out.println(currentNode.getFileNames());
+            }
+            
+            //wait 30 seconds
+            try {
+                Thread.sleep(30000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            
+        }
+
     }
 }

@@ -35,7 +35,7 @@ public class Node {
     public String getFileNames() {
         String directoryList = "";
         for(File file:containedFiles) {
-            directoryList += file.getName() + "\n";
+            directoryList += "\t" + file.getName() + "\n";
         }
         return directoryList;
     }
