@@ -107,8 +107,7 @@ public class UDPClient {
             
             //access node by IP addy from incomingPacket (through hashmap)
             String senderIP = incomingPacket.getAddress().getHostAddress();
-            System.out.println("DEBUG" + senderIP);
-            Node senderNode = nodeMap.get(senderIP);
+            Node senderNode = nodeMap.get(senderIP + ":" + incomingPacket.getPort());
 
             if(senderNode != null) {
                 //store the info (update file list)
