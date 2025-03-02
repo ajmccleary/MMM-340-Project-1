@@ -55,6 +55,7 @@ public class UDPClient {
                     nodeMap.put(newNode.getID(), newNode);
                 }
 
+                //increment count
                 count++;
             } while (fileInput.hasNextLine());
 
@@ -145,11 +146,11 @@ public class UDPClient {
 
             System.out.println("SENDING");
 
-            try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(); //initialize byteArrayOutputStream
-            ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream)){ //initialize objectOutput Stream to byteArrayOutputStream
+            //loop through nodes in node map
+            nodeMap.forEach((key, currentNode) -> {
+                try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(); //initialize byteArrayOutputStream
+                    ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream)){ //initialize objectOutput Stream to byteArrayOutputStream
                 
-                //loop through nodes in node map
-                nodeMap.forEach((key, currentNode) -> {
                     //access, store, and send local files held on machine using MyFileReader class
                     File localFiles[] = (File[]) MyFileReader.FileReader().toArray(new File[0]);
                     HACProtocol testProtocolPacket = new HACProtocol("P2P", UDPClient.sequenceNum, localFiles);
@@ -164,21 +165,20 @@ public class UDPClient {
                     //convert to byte array
                     byte[] serializedObject = byteArrayOutputStream.toByteArray();
 
+                    System.out.println(serializedObject.length);
+
                     //send via UDP
-                    try {
+                    
                     DatagramPacket packet = new DatagramPacket(serializedObject, serializedObject.length, InetAddress.getByName(currentNode.getIP()), currentNode.getPort());
-                    Socket.send(packet);
-                    } catch (UnknownHostException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                });
-            } catch (UnknownHostException e) {
-                e.printStackTrace();
-            } catch (IOException e1) {
-                e1.printStackTrace();
-            }
+                    System.out.println("DEBUG" + packet.getLength());
+                    UDPClient.Socket.send(packet);
+
+                } catch (UnknownHostException e) {
+                    e.printStackTrace();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            });
 
             //increment sequence num
             UDPClient.sequenceNum++;
@@ -197,7 +197,7 @@ public class UDPClient {
 
         //initialize threadpool
         executorService = Executors.newFixedThreadPool(2);
-
+        
         //execute receiving thread
         executorService.submit(() -> client.listenSocket());
 
