@@ -40,7 +40,7 @@ public class UDPClient {
                 nextLine = fileInput.nextLine();
 
                 //parse input and store in new node
-                Node newNode = new Node(nextLine.substring(0,9), Integer.parseInt(nextLine.substring(10, 14)), new ArrayList<File>());
+                Node newNode = new Node(nextLine.split(" ")[0], Integer.parseInt(nextLine.split(" ")[1]), new ArrayList<File>());
 
                 //check if count matches assigned client node num
                 if (count == UDPClient.nodeNum) {
