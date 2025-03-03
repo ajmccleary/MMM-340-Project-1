@@ -22,20 +22,17 @@ public class UDPClient {
     private static int nodeNum; //0-6, correlate to line of ipconfig to assign socket to
     private static int portNum;
     private static InetAddress ipAddress;
-    private static HashMap<String,Node> nodeMap = new HashMap<String,Node>();
+    private static int sequenceNum = 0;
+    private static ConcurrentHashMap<String,Node> nodeMap = new ConcurrentHashMap<String,Node>();
 
     //initialize scanner variables
-    private static Scanner fileInput;
 	private static File inFile = new File("Networking\\ipConfig.txt");
     private static String nextLine;
 
     public UDPClient() {
-        try {
+        try (Scanner fileInput = new Scanner(inFile)) { //initialize scanner
             //initialize count variable
             int count = 0;
-
-            //initialize scanner
-            fileInput = new Scanner(inFile);
 
             //scan through file
             do {
@@ -43,7 +40,7 @@ public class UDPClient {
                 nextLine = fileInput.nextLine();
 
                 //parse input and store in new node
-                Node newNode = new Node(nextLine.substring(0,9), Integer.parseInt(nextLine.substring(10, 14)), new ArrayList<File>());
+                Node newNode = new Node(nextLine.split(" ")[0], Integer.parseInt(nextLine.split(" ")[1]), new ArrayList<File>());
 
                 //check if count matches assigned client node num
                 if (count == UDPClient.nodeNum) {
@@ -58,8 +55,12 @@ public class UDPClient {
                     nodeMap.put(newNode.getID(), newNode);
                 }
 
+                //increment count
                 count++;
             } while (fileInput.hasNextLine());
+
+            //close scanner
+            fileInput.close();
 
         } catch (FileNotFoundException e) { //catch potential error thrown by scanner
 			e.printStackTrace();
@@ -75,7 +76,8 @@ public class UDPClient {
         }
     }
 
-    public void listenSocket() throws ClassNotFoundException {
+    //thread function to listen for incoming packets
+    public void listenSocket() {
         //loop indefinitely
         while (true) {
             System.out.println("RECEIVING");
@@ -95,21 +97,20 @@ public class UDPClient {
             //deserialize recieved packet
             HACProtocol receivedPacket = null;
             try(ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(incomingPacket.getData());
-                ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream)){
-
+                ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream)) {
                     receivedPacket = (HACProtocol) objectInputStream.readObject();
-                }catch (IOException e){
+                }catch (IOException e) {
                     e.printStackTrace();
                     continue; // skip to the next loop iteration if deserialization fails 
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
                 }
-
-            //AISLIN access node (through hashmap) by ipadress from incomingpacket, then store its info (in node from incomingpacket using setFileNames) and do the node up node down shit (make a new array of booleans for if a node is up or down)
             
             //access node by IP addy from incomingPacket (through hashmap)
             String senderIP = incomingPacket.getAddress().getHostAddress();
-            Node senderNode = nodeMap.get(senderIP);
+            Node senderNode = nodeMap.get(senderIP + ":" + incomingPacket.getPort());
 
-            if(senderNode != null){
+            if(senderNode != null) {
                 //store the info (update file list)
                 senderNode.setFiles(new ArrayList<File>(Arrays.asList(receivedPacket.localFiles)));
 
@@ -129,54 +130,63 @@ public class UDPClient {
         }
     }
 
+    //thread function to send heartbeat packets to all other nodes
     public void sendPulse() {
         //initialize rng
         SecureRandom random = new SecureRandom();
 
         //loop indefinitely
         while (true) {             
+            //pause for random time (0-30s) before next loop
+            try {
+                Thread.sleep(random.nextInt(30)*1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
             System.out.println("SENDING");
 
-            try {
-                //pause for random time (0-30s) before next loop
-                Thread.sleep(random.nextInt(30)*1000);
-
-                //loop through nodes in node map
-                for (Node currentNode : nodeMap.values()) {
-                    //temp make shitty test packet - use myFileReader method to get and then store files
-                    File testArray[] = (File[])MyFileReader.FileReader().toArray();
-                    HACProtocol testProtocolPacket = new HACProtocol("doesn'tmatter", 0, 1, testArray);
+            //loop through nodes in node map
+            nodeMap.forEach((key, currentNode) -> {
+                try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(); //initialize byteArrayOutputStream
+                    ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream)){ //initialize objectOutput Stream to byteArrayOutputStream
+                
+                    //access, store, and send local files held on machine using MyFileReader class
+                    File localFiles[] = (File[]) MyFileReader.FileReader().toArray(new File[0]);
+                    HACProtocol testProtocolPacket = new HACProtocol("P2P", UDPClient.sequenceNum, localFiles);
 
                     //write protocol packet to byte array output stream
-                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                    ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
-                    objectOutputStream.writeObject(testProtocolPacket);
+                    try {
+                        objectOutputStream.writeObject(testProtocolPacket);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
 
                     //convert to byte array
                     byte[] serializedObject = byteArrayOutputStream.toByteArray();
 
-                    //send via UDP
-                    DatagramPacket packet = new DatagramPacket(serializedObject, serializedObject.length, InetAddress.getByName(currentNode.getIP()), currentNode.getPort());
-                    Socket.send(packet);
+                    System.out.println(serializedObject.length);
 
-                    //close out resources
-                    byteArrayOutputStream.close();
-                    objectOutputStream.close();
+                    //send via UDP
+                    
+                    DatagramPacket packet = new DatagramPacket(serializedObject, serializedObject.length, InetAddress.getByName(currentNode.getIP()), currentNode.getPort());
+                    System.out.println("DEBUG" + packet.getLength());
+                    UDPClient.Socket.send(packet);
+
+                } catch (UnknownHostException e) {
+                    e.printStackTrace();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
                 }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (UnknownHostException e) {
-                e.printStackTrace();
-            } catch (SocketException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            });
+
+            //increment sequence num
+            UDPClient.sequenceNum++;
         }
     }
 
     //getters
-    public static HashMap<String, Node> getMap() {return nodeMap;}
+    public static ConcurrentHashMap<String, Node> getMap() {return nodeMap;}
 
     public static void main(String[] args) { //nodeNum (0)
         //get node number of client from command line args
@@ -187,20 +197,44 @@ public class UDPClient {
 
         //initialize threadpool
         executorService = Executors.newFixedThreadPool(2);
-
+        
         //execute receiving thread
-        executorService.submit(() -> {
-            try {
-                client.listenSocket();
-            } catch (ClassNotFoundException ex) {
-            }
-        });
+        executorService.submit(() -> client.listenSocket());
 
         //execute sending thread
         executorService.submit(() -> client.sendPulse());
 
-        //logic for determining if a node is down here - in seperate thread?
+        //socket and executor service shut down hook thread
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            if (Socket != null && !Socket.isClosed()) {
+                Socket.close();
+            }
+            if (executorService != null) {
+                executorService.shutdown();
+            }
+        }));
 
-        //perioidically print node data - in seperate thread?
+        //perioidically print node data
+        while (true) {
+            //print header
+            System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+            System.out.println("Outputting Network Data");
+            System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+
+            //print data for each node
+            Collection<Node> nodes = nodeMap.values();
+            for (Node currentNode : nodes) {
+                System.out.printf("Node: %s is %s%n", currentNode.getID(), currentNode.timeOut()? "UP" : "DOWN");
+                System.out.println("\tFiles:");
+                System.out.println(currentNode.getFileNames());
+            }
+            
+            //wait 30 seconds
+            try {
+                Thread.sleep(30000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }   
+        }
     }
 }
