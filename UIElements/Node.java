@@ -25,6 +25,10 @@ public class Node {
         this.isSelf = false;
     }
     
+    /**
+     * Checks if the node is still online
+     * @return true IF node is down
+     */
     public boolean timeOut() {
         if(secSinceHeartbeat > 30) {
             hasTimedOut = true;
