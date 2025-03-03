@@ -85,7 +85,6 @@ public class UDPClient {
             //initialize holder for incoming data
             byte[] incomingData = new byte[1024];
             DatagramPacket incomingPacket = new DatagramPacket(incomingData, incomingData.length);
-
             
             try {
                 //receive incoming data
@@ -93,7 +92,7 @@ public class UDPClient {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            
+
             //deserialize recieved packet
             HACProtocol receivedPacket = null;
             try(ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(incomingPacket.getData());
@@ -110,6 +109,9 @@ public class UDPClient {
             String senderIP = incomingPacket.getAddress().getHostAddress();
             Node senderNode = nodeMap.get(senderIP + ":" + incomingPacket.getPort());
 
+            //mark time of receipt in sender node
+            senderNode.heartbeatRecieved();
+
             if(senderNode != null) {
                 //store the info (update file list)
                 senderNode.setFiles(new ArrayList<File>(Arrays.asList(receivedPacket.localFiles)));
@@ -123,10 +125,6 @@ public class UDPClient {
             } else {
                  System.out.println("Received packet from unknown node: " + senderIP);
             }
-
-            //print data received (will later process data)
-            String response = new String(incomingPacket.getData());
-            System.out.println("Response from server:" + response);
         }
     }
 
@@ -165,12 +163,8 @@ public class UDPClient {
                     //convert to byte array
                     byte[] serializedObject = byteArrayOutputStream.toByteArray();
 
-                    System.out.println(serializedObject.length);
-
                     //send via UDP
-                    
                     DatagramPacket packet = new DatagramPacket(serializedObject, serializedObject.length, InetAddress.getByName(currentNode.getIP()), currentNode.getPort());
-                    System.out.println("DEBUG" + packet.getLength());
                     UDPClient.Socket.send(packet);
 
                 } catch (UnknownHostException e) {
@@ -196,8 +190,10 @@ public class UDPClient {
         UDPClient client = new UDPClient();
 
         //initialize threadpool
-        executorService = Executors.newFixedThreadPool(2);
+        executorService = Executors.newFixedThreadPool(3);
         
+        //heartbeat loop thread
+
         //execute receiving thread
         executorService.submit(() -> client.listenSocket());
 
@@ -224,7 +220,7 @@ public class UDPClient {
             //print data for each node
             Collection<Node> nodes = nodeMap.values();
             for (Node currentNode : nodes) {
-                System.out.printf("Node: %s is %s%n", currentNode.getID(), currentNode.timeOut()? "UP" : "DOWN");
+                System.out.printf("Node: %s is %s%n", currentNode.getID(), currentNode.timeOut()? "DOWN" : "UP");
                 System.out.println("\tFiles:");
                 System.out.println(currentNode.getFileNames());
             }
