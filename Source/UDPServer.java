@@ -1,4 +1,4 @@
-package Networking;
+package Source;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -7,6 +7,10 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+
+import Networking.HACProtocol;
+
+
 /**
  * 
  * @author cjaiswal
@@ -40,7 +44,7 @@ public class UDPServer
                 ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream);
                 HACProtocol receivedObject = (HACProtocol) objectInputStream.readObject();
 
-                String message = receivedObject.version; //version used for now, would actually be data
+                String message = "goon"; //version used for now, would actually be data
                 InetAddress IPAddress = incomingPacket.getAddress();
                 int port = incomingPacket.getPort();
                 
