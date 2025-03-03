@@ -210,6 +210,8 @@ public class UDPClient {
             }
         }));
 
+        runLoop();
+
         //perioidically print node data
         while (true) {
             //print header
@@ -231,6 +233,18 @@ public class UDPClient {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }   
+        }
+    }
+    static double lastUpdate;
+    static Collection<Node> nodeList = nodeMap.values();
+    public static void runLoop() {
+        lastUpdate = 0;
+        while(true) {
+            if(System.nanoTime()/1000000000-lastUpdate>=1) {
+                lastUpdate = System.nanoTime()/1000000000;
+                //Ping all things that need to activate once/sec
+                for(Node node: nodeList) { node.heartbeat(); }
+            }
         }
     }
 }
