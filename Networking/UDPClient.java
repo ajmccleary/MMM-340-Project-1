@@ -16,14 +16,16 @@ import UIElements.Node;
  * 
  */
 public class UDPClient {
-    //instance variables
+    //class variables
     private static DatagramSocket Socket;
     private static ExecutorService executorService;
     private static int nodeNum; //0-6, correlate to line of ipconfig to assign socket to
     private static int portNum;
     private static InetAddress ipAddress;
     private static int sequenceNum = 0;
+    private static double lastUpdate;
     private static ConcurrentHashMap<String,Node> nodeMap = new ConcurrentHashMap<String,Node>();
+    
 
     //initialize scanner variables
 	private static File inFile = new File("Networking\\ipConfig.txt");
@@ -76,12 +78,23 @@ public class UDPClient {
         }
     }
 
+    //thread function to determine if 30 seconds have passed since last heartbeat
+    public static void runLoop() {
+        Collection<Node> nodeList = nodeMap.values();
+        lastUpdate = 0;
+        while(true) {
+            if(System.nanoTime()/1000000000-lastUpdate>=1) {
+                lastUpdate = System.nanoTime()/1000000000;
+                //Ping all things that need to activate once/sec
+                for(Node node: nodeList) { node.heartbeat(); }
+            }
+        }
+    }
+
     //thread function to listen for incoming packets
     public void listenSocket() {
         //loop indefinitely
         while (true) {
-            System.out.println("RECEIVING");
-
             //initialize holder for incoming data
             byte[] incomingData = new byte[1024];
             DatagramPacket incomingPacket = new DatagramPacket(incomingData, incomingData.length);
@@ -142,8 +155,6 @@ public class UDPClient {
                 e.printStackTrace();
             }
 
-            System.out.println("SENDING");
-
             //loop through nodes in node map
             nodeMap.forEach((key, currentNode) -> {
                 try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(); //initialize byteArrayOutputStream
@@ -193,6 +204,7 @@ public class UDPClient {
         executorService = Executors.newFixedThreadPool(3);
         
         //heartbeat loop thread
+        executorService.submit(() -> UDPClient.runLoop());
 
         //execute receiving thread
         executorService.submit(() -> client.listenSocket());
@@ -209,8 +221,6 @@ public class UDPClient {
                 executorService.shutdown();
             }
         }));
-
-        runLoop();
 
         //perioidically print node data
         while (true) {
@@ -233,18 +243,6 @@ public class UDPClient {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }   
-        }
-    }
-    static double lastUpdate;
-    static Collection<Node> nodeList = nodeMap.values();
-    public static void runLoop() {
-        lastUpdate = 0;
-        while(true) {
-            if(System.nanoTime()/1000000000-lastUpdate>=1) {
-                lastUpdate = System.nanoTime()/1000000000;
-                //Ping all things that need to activate once/sec
-                for(Node node: nodeList) { node.heartbeat(); }
-            }
         }
     }
 }
