@@ -45,7 +45,7 @@ public class MainScreen extends JFrame{
                     //Will get removed on final implementation
                     mainScreen.runLoop();
                 }
-                private static void runLoop() { //Triggers once per second
+                private void runLoop() { //Triggers once per second
                     lastUpdate = 0;
                 while(true) {
                     if(System.nanoTime()/1000000000-lastUpdate>=1) {

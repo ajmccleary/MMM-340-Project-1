@@ -235,8 +235,14 @@ public class UDPClient {
             }   
         }
     }
+
+    
     static double lastUpdate;
     static Collection<Node> nodeList = nodeMap.values();
+    /**
+     * Runs a loop that triggers once/sec
+     * @return void
+     */
     public static void runLoop() {
         lastUpdate = 0;
         while(true) {
