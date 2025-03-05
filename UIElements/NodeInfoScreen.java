@@ -7,11 +7,11 @@ package UIElements;
  *      List of Files on Respective Node
  */     
 
+import Networking.Node;
+import java.awt.*;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.text.JTextComponent;
-
-import java.awt.*;
 
 public class NodeInfoScreen extends JPanel{
     private MainScreen frame;
