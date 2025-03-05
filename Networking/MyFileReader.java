@@ -34,6 +34,9 @@ public class MyFileReader {
         public List<Path> getFilePaths() {
             return outList;
         }
+        public ArrayList<File> getFiles() {
+            return outFiles;
+        }
         public static void main(String[] args) {
             System.out.println(FileReader().toString());
         }
