@@ -78,7 +78,11 @@ public class UDPClient {
         }
     }
 
-    //thread function to determine if 30 seconds have passed since last heartbeat
+    
+    /**
+     * Runs a loop on a thread that triggers once/sec to uptick node heartbeat
+     * @return void
+     */
     public static void runLoop() {
         Collection<Node> nodeList = nodeMap.values();
         lastUpdate = 0;
@@ -243,24 +247,6 @@ public class UDPClient {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }   
-        }
-    }
-
-    
-    static double lastUpdate;
-    static Collection<Node> nodeList = nodeMap.values();
-    /**
-     * Runs a loop that triggers once/sec
-     * @return void
-     */
-    public static void runLoop() {
-        lastUpdate = 0;
-        while(true) {
-            if(System.nanoTime()/1000000000-lastUpdate>=1) {
-                lastUpdate = System.nanoTime()/1000000000;
-                //Ping all things that need to activate once/sec
-                for(Node node: nodeList) { node.heartbeat(); }
-            }
         }
     }
 }
