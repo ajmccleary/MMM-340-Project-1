@@ -152,8 +152,8 @@ public class UDPClientMC {
     }
 
     public static void main(String[] args) {
-        //get node number of client from command line args
-        UDPClientMC.nodeNum = Integer.parseInt(args[0]);
+        // //get node number of client from command line args
+        // UDPClientMC.nodeNum = Integer.parseInt(args[0]);
 
         UDPClientMC client = new UDPClientMC();
         client.startClient();
