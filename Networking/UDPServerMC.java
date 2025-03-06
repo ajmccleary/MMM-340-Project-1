@@ -51,13 +51,15 @@ public class UDPServerMC
                 ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(incomingPacket.getData(), 0, incomingPacket.getLength());
                 ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream);
                 HACProtocol receivedObject = (HACProtocol)objectInputStream.readObject();
+
+                System.out.println("DEBUG: IncomingNodeID " + incomingPacket.getAddress().getHostAddress() + ":" + incomingPacket.getPort());
                 nodeMap.put(incomingPacket.getAddress().getHostAddress() + ":" + incomingPacket.getPort(), new Node(incomingPacket.getAddress().getHostAddress(), incomingPacket.getPort(), new ArrayList<File>(Arrays.asList(receivedObject.getLocalFiles()))));
                 nodeMap.get(incomingPacket.getAddress().getHostAddress() + ":" + incomingPacket.getPort()).heartbeatRecieved(); //Updates the node to have received it's heartbeat message
 
 
                 InetAddress IPAddress = incomingPacket.getAddress();
                 int port = incomingPacket.getPort();
-                String message = nodeMap.get(IPAddress.getHostAddress()).getFileNames(); //version used for now, would actually be data
+                String message = nodeMap.get(IPAddress.getHostAddress() + ":" + port).getFileNames(); //version used for now, would actually be data
                 
                 System.out.println("Received message from client: " + message);
                 System.out.println("Client IP:"+IPAddress.getHostAddress());

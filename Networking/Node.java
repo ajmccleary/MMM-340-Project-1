@@ -1,6 +1,7 @@
 package Networking;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
@@ -9,7 +10,7 @@ import java.util.ArrayList;
  * @param containedFiles contains a list of all files on the Node
  * @param portNum int value that stores the port of the connected device
  */
-public class Node {
+public class Node implements Serializable{
     private String IPAddress;
     private ArrayList<File> containedFiles;
     private boolean hasTimedOut, isSelf;
@@ -50,7 +51,10 @@ public class Node {
     public String toString() {
         return "ID: " + this.IPAddress + ":" + this.portNum + "\nFile List: \n" + this.getFileNames();
     }
-
+    /**
+     * @author Brady Galligan
+     * Resets the Nodes heartbeat clock and 
+     */
     public void heartbeatRecieved() { secSinceHeartbeat = 0; hasTimedOut = false; }
     public void heartbeat() { secSinceHeartbeat++;}
     public void setFiles(ArrayList<File> files) {this.containedFiles = files;}
