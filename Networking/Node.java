@@ -48,7 +48,7 @@ public class Node {
     }
     
 
-    public void heartbeatRecieved() { secSinceHeartbeat = 0; }
+    public void heartbeatRecieved() { secSinceHeartbeat = 0; hasTimedOut = false; }
     public void heartbeat() { secSinceHeartbeat++;}
     public void setFiles(ArrayList<File> files) {this.containedFiles = files;}
 

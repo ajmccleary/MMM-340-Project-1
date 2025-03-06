@@ -53,9 +53,9 @@ public class UDPServerMC
                 //deserialize received packet
                 ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(incomingPacket.getData(), 0, incomingPacket.getLength());
                 ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream);
-                HACProtocol receivedObject = (HACProtocol) objectInputStream.readObject();
+                HACProtocol receivedObject = (HACProtocol)objectInputStream.readObject();
                 nodeMap.put(incomingPacket.getAddress().getHostAddress() + ":" + incomingPacket.getPort(), new Node(incomingPacket.getAddress().getHostAddress(), incomingPacket.getPort(), new ArrayList<File>(Arrays.asList(receivedObject.getLocalFiles()))));
-                nodeMap.get(incomingPacket.getAddress().getHostAddress() + ":" + incomingPacket.getPort()).heartbeatRecieved();
+                nodeMap.get(incomingPacket.getAddress().getHostAddress() + ":" + incomingPacket.getPort()).heartbeatRecieved(); //Updates the node to have received it's heartbeat message
 
 
                 InetAddress IPAddress = incomingPacket.getAddress();
