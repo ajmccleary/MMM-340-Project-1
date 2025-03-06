@@ -10,7 +10,9 @@ public class HACProtocol implements Serializable { //what class format? javadoc 
 
     //protocol data
     boolean nodesUp []; //array of booleans representing status of all other nodes
-    public File localFiles []; //array of file names on node
+    File localFiles []; //array of file names on node
+    Node nodeArr[]; //Array of nodes for Client Server
+
 
     //packet constructor
     public HACProtocol (String version, int sequenceNumber, File[] localFiles) {
@@ -21,4 +23,11 @@ public class HACProtocol implements Serializable { //what class format? javadoc 
         this.nodesUp = new boolean[6];
         this.localFiles = localFiles; //input using Brady method
     }
+    public HACProtocol(String version, int sequenceNumber, Node[] nodeArr) {
+        this.version = version;
+        this.nodesUp = new boolean[6];
+        this.nodeArr = nodeArr;
+    }
+
+    public File[] getLocalFiles() { return localFiles; }
 }
