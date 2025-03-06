@@ -26,7 +26,7 @@ public class UDPClient {
     
 
     //initialize scanner variables
-	private static File inFile = new File("Networking\\ipConfig.txt");
+	private static File inFile = new File("ipConfig.txt");
     private static String nextLine;
 
     public UDPClient() {
@@ -58,10 +58,6 @@ public class UDPClient {
                 //increment count
                 count++;
             } while (fileInput.hasNextLine());
-
-            //close scanner
-            fileInput.close();
-
         } catch (FileNotFoundException e) { //catch potential error thrown by scanner
 			e.printStackTrace();
 		} catch (UnknownHostException e) {
@@ -124,19 +120,13 @@ public class UDPClient {
             String senderIP = incomingPacket.getAddress().getHostAddress();
             Node senderNode = nodeMap.get(senderIP + ":" + incomingPacket.getPort());
 
-            //mark time of receipt in sender node
-            senderNode.heartbeatRecieved();
-
+            
             if(senderNode != null) {
+                //mark time of receipt in sender node
+                senderNode.heartbeatRecieved();
+
                 //store the info (update file list)
                 senderNode.setFiles(new ArrayList<File>(Arrays.asList(receivedPacket.localFiles)));
-
-                //update node stauts
-                boolean[] nodeStatus = receivedPacket.nodesUp;
-
-                //print updated node info (debug)
-                System.out.println("Updated Node: " + senderNode.getID() + " - Files: " + senderNode.getFileNames());
-                System.out.println("Node Status: " + Arrays.toString(nodeStatus));
             } else {
                  System.out.println("Received packet from unknown node: " + senderIP);
             }

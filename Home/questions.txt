@@ -1,2 +1,2 @@
-What are testing logs?
-Do we need a regex lock on Socket? Or no because its never changed?
+What are testing logs? - test code with different scenarios. Do we need different logs for P2P and C-S?
+Is command line arg to store socket okay?

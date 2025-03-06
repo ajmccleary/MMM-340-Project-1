@@ -13,6 +13,13 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.text.JTextComponent;
 
+<<<<<<< HEAD
+=======
+import Networking.Node;
+
+import java.awt.*;
+
+>>>>>>> b8e59b6 (stash)
 public class NodeInfoScreen extends JPanel{
     private MainScreen frame;
     private JLabel IP, hrtBt, fileList;
