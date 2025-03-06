@@ -13,7 +13,7 @@ import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 
 import Networking.HACProtocol;
-import UIElements.Node;
+import Networking.Node;
 
 
 /**
@@ -52,9 +52,9 @@ public class UDPServerMC
                 HACProtocol receivedObject = (HACProtocol) objectInputStream.readObject();
                 nodeMap.put(incomingPacket.getAddress().getHostAddress(), new Node(incomingPacket.getAddress().getHostAddress(), incomingPacket.getPort(), new ArrayList<File>(Arrays.asList(receivedObject.localFiles))));
 
-                String message = "C-S"; //version used for now, would actually be data
                 InetAddress IPAddress = incomingPacket.getAddress();
                 int port = incomingPacket.getPort();
+                String message = nodeMap.get(IPAddress.getHostAddress()).getFileNames(); //version used for now, would actually be data
                 
                 System.out.println("Received message from client: " + message);
                 System.out.println("Client IP:"+IPAddress.getHostAddress());
