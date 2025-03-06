@@ -25,6 +25,7 @@ public class UDPClientMC {
     private InetAddress serverAddress; //server's Ip address
     private int serverPort = 8001; // servers port number
     private Random random; //generating random intervals 
+    private static int nodeNum;
 
     public UDPClientMC(){
     	try {
@@ -138,8 +139,10 @@ public class UDPClientMC {
         }
     }
 
-    public static void main(String[] args) 
-    {
+    public static void main(String[] args) {
+        //get node number of client from command line args
+        UDPClientMC.nodeNum = Integer.parseInt(args[0]);
+
         UDPClientMC client = new UDPClientMC();
         client.startClient();
     }

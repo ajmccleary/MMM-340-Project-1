@@ -40,57 +40,50 @@ public class UDPServerMC
             socket = new DatagramSocket(8001);
             byte[] incomingData = new byte[1024];
 
-            int c = 0;
+            
+            DatagramPacket incomingPacket = new DatagramPacket(incomingData, incomingData.length);
+            socket.receive(incomingPacket);
 
-            while (c < 3) 
-            {
-                DatagramPacket incomingPacket = new DatagramPacket(incomingData, incomingData.length);
-                socket.receive(incomingPacket);
-
-                //deserialize received packet
-                ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(incomingPacket.getData(), 0, incomingPacket.getLength());
-                ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream);
-                HACProtocol receivedObject = (HACProtocol)objectInputStream.readObject();
+            //deserialize received packet
+            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(incomingPacket.getData(), 0, incomingPacket.getLength());
+            ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream);
+            HACProtocol receivedObject = (HACProtocol)objectInputStream.readObject();
 
                 System.out.println("DEBUG: IncomingNodeID " + incomingPacket.getAddress().getHostAddress() + ":" + incomingPacket.getPort());
-                nodeMap.put(incomingPacket.getAddress().getHostAddress() + ":" + incomingPacket.getPort(), new Node(incomingPacket.getAddress().getHostAddress(), incomingPacket.getPort(), new ArrayList<File>(Arrays.asList(receivedObject.getLocalFiles()))));
-                nodeMap.get(incomingPacket.getAddress().getHostAddress() + ":" + incomingPacket.getPort()).heartbeatRecieved(); //Updates the node to have received it's heartbeat message
+            nodeMap.put(incomingPacket.getAddress().getHostAddress() + ":" + incomingPacket.getPort(), new Node(incomingPacket.getAddress().getHostAddress(), incomingPacket.getPort(), new ArrayList<File>(Arrays.asList(receivedObject.getLocalFiles()))));
+            nodeMap.get(incomingPacket.getAddress().getHostAddress() + ":" + incomingPacket.getPort()).heartbeatRecieved(); //Updates the node to have received it's heartbeat message
 
 
-                InetAddress IPAddress = incomingPacket.getAddress();
-                int port = incomingPacket.getPort();
-                String message = nodeMap.get(IPAddress.getHostAddress() + ":" + port).getFileNames(); //version used for now, would actually be data
+            InetAddress IPAddress = incomingPacket.getAddress();
+            int port = incomingPacket.getPort();
+            String message = nodeMap.get(IPAddress.getHostAddress() + ":" + port).getFileNames(); //version used for now, would actually be data
                 
-                System.out.println("Received message from client: " + message);
-                System.out.println("Client IP:"+IPAddress.getHostAddress());
-                System.out.println("Client port:"+port);
+            System.out.println("Received message from client: " + message);
+            System.out.println("Client IP:"+IPAddress.getHostAddress());
+            System.out.println("Client port:"+port);
                 
-                String reply = "Thank you for the message";
+            String reply = "Thank you for the message";
 
-                //Packaging return HACProtocol
-                byte[] data;
-                try(ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(); //initialize byteArrayOutputStream
-                    ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream)) {
-                        Node[] tempArr = nodeMap.values().toArray(new Node[nodeMap.size()]);
-                        HACProtocol sentObject = new HACProtocol("CS", 0, tempArr);
+            //Packaging return HACProtocol
+            byte[] data;
+            try(ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(); //initialize byteArrayOutputStream
+                ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream)) {
+                    Node[] tempArr = nodeMap.values().toArray(new Node[nodeMap.size()]);
+                    HACProtocol sentObject = new HACProtocol("CS", 0, tempArr);
 
-                        try {
-                            objectOutputStream.writeObject(sentObject);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-
-                        data = byteArrayOutputStream.toByteArray();
+                    try {
+                        objectOutputStream.writeObject(sentObject);
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
-                // byte[] data = reply.getBytes();
-                
-                DatagramPacket replyPacket = new DatagramPacket(data, data.length, IPAddress, port); //Sends the list of all nodes back to the pinging node
-                
-                socket.send(replyPacket);
-                Thread.sleep(2000);
 
-                c++;
-            }
+                    data = byteArrayOutputStream.toByteArray();
+                }
+                
+            DatagramPacket replyPacket = new DatagramPacket(data, data.length, IPAddress, port); //Sends the list of all nodes back to the pinging node
+                
+            socket.send(replyPacket);
+            Thread.sleep(2000);
 
             socket.close();
         } 
