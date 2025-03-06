@@ -1,14 +1,19 @@
 package Source;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.concurrent.ConcurrentHashMap;
 
 import Networking.HACProtocol;
+import UIElements.Node;
 
 
 /**
@@ -21,7 +26,8 @@ import Networking.HACProtocol;
 public class UDPServerMC
 {
     DatagramSocket socket = null;
-    private static ArrayList<Node>[] = new ArrayList<Node>[];
+    private static ConcurrentHashMap<String, Node> nodeMap = new ConcurrentHashMap<String, Node>();
+    //private static ArrayList<Node>[] fileList = new ArrayList<Node>[];
 
     public UDPServerMC() 
     {
@@ -44,6 +50,7 @@ public class UDPServerMC
                 ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(incomingPacket.getData(), 0, incomingPacket.getLength());
                 ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream);
                 HACProtocol receivedObject = (HACProtocol) objectInputStream.readObject();
+                nodeMap.put(incomingPacket.getAddress().getHostAddress(), new Node(incomingPacket.getAddress().getHostAddress(), incomingPacket.getPort(), new ArrayList<File>(Arrays.asList(receivedObject.localFiles))));
 
                 String message = "C-S"; //version used for now, would actually be data
                 InetAddress IPAddress = incomingPacket.getAddress();
@@ -85,7 +92,7 @@ public class UDPServerMC
 
     public static void main(String[] args) 
     {
-        UDPServer server = new UDPServer();
+        UDPServerMC server = new UDPServerMC();
         server.createAndListenSocket();
     }
 }
