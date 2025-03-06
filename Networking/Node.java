@@ -48,7 +48,7 @@ public class Node {
     }
     
     public String toString() {
-        return "ID: " + this.IPAddress + ":" + this.portNum + "\nFile List: " + this.getFileNames();
+        return "ID: " + this.IPAddress + ":" + this.portNum + "\nFile List: \n" + this.getFileNames();
     }
 
     public void heartbeatRecieved() { secSinceHeartbeat = 0; hasTimedOut = false; }
