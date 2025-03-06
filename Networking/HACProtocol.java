@@ -14,7 +14,7 @@ public class HACProtocol implements Serializable { //what class format? javadoc 
     Node nodeArr[]; //Array of nodes for Client Server
 
 
-    //packet constructor
+    //packet constructor - P2P
     public HACProtocol (String version, int sequenceNumber, File[] localFiles) {
         //initialize protocol control fields
         this.version = version;
@@ -23,6 +23,8 @@ public class HACProtocol implements Serializable { //what class format? javadoc 
         this.nodesUp = new boolean[6];
         this.localFiles = localFiles; //input using Brady method
     }
+
+    //packet constructor - CS
     public HACProtocol(String version, int sequenceNumber, Node[] nodeArr) {
         this.version = version;
         this.nodesUp = new boolean[6];
