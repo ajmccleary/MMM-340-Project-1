@@ -7,6 +7,7 @@ import java.util.HashMap;
 import javax.swing.JFrame;
 
 import Networking.MyFileReader;
+import Networking.Node;
 import Networking.UDPClient;
 
 
