@@ -3,6 +3,7 @@ package Networking;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -22,15 +23,29 @@ import java.util.stream.Stream;
  */
 public class UDPClientMC {
     private DatagramSocket socket;
-    private InetAddress serverAddress; //server's Ip address
-    private int serverPort = 8001; // servers port number
+    private static InetAddress serverAddress; //server's Ip address
+    private static int serverPort; // servers port number
     private Random random; //generating random intervals 
     private static int nodeNum;
 
+    //initialize scanner variables
+	private static File inFile = new File("ipConfig.txt");
+    private static String nextLine;
+
     public UDPClientMC(){
     	try {
-            // Read server IP from ipconfig.txt
-            serverAddress = readServerIP("ipconfig.txt");
+            try (Scanner fileInput = new Scanner(inFile)) { //initialize scanner
+            //store next line input
+            nextLine = fileInput.nextLine();
+
+            //parse input and store in new node
+            UDPClientMC.serverAddress = InetAddress.getByName(nextLine.split(" ")[0]);
+            UDPClientMC.serverPort = Integer.parseInt(nextLine.split(" ")[1]);
+        } catch (FileNotFoundException e) { //catch potential error thrown by scanner
+			e.printStackTrace();
+		} catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
 
 
         	//UDP socket with a randomly assigned avaiable port
@@ -40,9 +55,6 @@ public class UDPClientMC {
     	catch (SocketException e){
 			e.printStackTrace();
 		}
-        catch(UnknownHostException e){
-            e.printStackTrace();
-        }
         catch(IOException e){
             e.printStackTrace();
         }
