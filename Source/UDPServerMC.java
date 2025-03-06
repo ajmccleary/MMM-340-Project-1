@@ -38,6 +38,7 @@ public class UDPServerMC
     }
     
     public void createAndListenSocket() {
+        System.out.println("Server Successfully Booted\n~~Listening for connection~~");
         try {
             socket = new DatagramSocket(8001);
             byte[] incomingData = new byte[1024];

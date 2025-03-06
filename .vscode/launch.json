@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "UDPServerMC",
+            "request": "launch",
+            "mainClass": "Source.UDPServerMC",
+            "projectName": "MMM-340-Project-1_633f6d82"
+        },
+        {
+            "type": "java",
             "name": "UDPClient",
             "request": "launch",
             "mainClass": "Networking.UDPClient",
