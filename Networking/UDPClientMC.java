@@ -23,15 +23,17 @@ import java.util.stream.Stream;
 public class UDPClientMC {
     private DatagramSocket socket;
     private InetAddress serverAddress; //server's Ip address
-    private int serverPort = 9876; // servers port number
+    private int serverPort = 8001; // servers port number
     private Random random; //generating random intervals 
 
-    public UDPClientMC() 
-    {
+    public UDPClientMC(){
     	try {
-        	//UDP socket with a randomlu assigned avaiable port
+            // Read server IP from ipconfig.txt
+            serverAddress = readServerIP("ipconfig.txt");
+
+
+        	//UDP socket with a randomly assigned avaiable port
 			socket = new DatagramSocket();
-            serverAddress = InetAddress.getByName("localHost"); //sever running locally 
             random = new Random(); //initalizae random number generator 
 		} 
     	catch (SocketException e){
@@ -40,8 +42,19 @@ public class UDPClientMC {
         catch(UnknownHostException e){
             e.printStackTrace();
         }
+        catch(IOException e){
+            e.printStackTrace();
+        }
     }
 
+    private InetAddress readServerIP(String filename) throws IOException {
+        try (Scanner scanner = new Scanner(new File(filename))) {
+            if (scanner.hasNextLine()) {
+                return InetAddress.getByName(scanner.nextLine().trim());
+            }
+        }
+        throw new IOException("Could not read server IP from " + filename);
+    }
 
     public void startClient(){
         try {

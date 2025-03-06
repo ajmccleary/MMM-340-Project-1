@@ -17,7 +17,7 @@ public class UDPClient {
     //class variables
     private static DatagramSocket Socket;
     private static ExecutorService executorService;
-    private static int nodeNum; //0-6, correlate to line of ipconfig to assign socket to
+    static int nodeNum; //0-6, correlate to line of ipconfig to assign socket to
     private static int portNum;
     private static InetAddress ipAddress;
     private static int sequenceNum = 0;
