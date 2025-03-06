@@ -1,15 +1,18 @@
 package Source;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 
 import Networking.HACProtocol;
@@ -50,7 +53,9 @@ public class UDPServerMC
                 ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(incomingPacket.getData(), 0, incomingPacket.getLength());
                 ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream);
                 HACProtocol receivedObject = (HACProtocol) objectInputStream.readObject();
-                nodeMap.put(incomingPacket.getAddress().getHostAddress(), new Node(incomingPacket.getAddress().getHostAddress(), incomingPacket.getPort(), new ArrayList<File>(Arrays.asList(receivedObject.localFiles))));
+                nodeMap.put(incomingPacket.getAddress().getHostAddress() + ":" + incomingPacket.getPort(), new Node(incomingPacket.getAddress().getHostAddress(), incomingPacket.getPort(), new ArrayList<File>(Arrays.asList(receivedObject.getLocalFiles()))));
+                nodeMap.get(incomingPacket.getAddress().getHostAddress() + ":" + incomingPacket.getPort()).heartbeatRecieved();
+
 
                 InetAddress IPAddress = incomingPacket.getAddress();
                 int port = incomingPacket.getPort();
@@ -61,9 +66,25 @@ public class UDPServerMC
                 System.out.println("Client port:"+port);
                 
                 String reply = "Thank you for the message";
-                byte[] data = reply.getBytes();
+
+                //Packaging return HACProtocol
+                byte[] data;
+                try(ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(); //initialize byteArrayOutputStream
+                    ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream)) {
+                        Node[] tempArr = nodeMap.values().toArray(new Node[nodeMap.size()]);
+                        HACProtocol sentObject = new HACProtocol("CS", 0, tempArr);
+
+                        try {
+                            objectOutputStream.writeObject(sentObject);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                        data = byteArrayOutputStream.toByteArray();
+                    }
+                // byte[] data = reply.getBytes();
                 
-                DatagramPacket replyPacket = new DatagramPacket(data, data.length, IPAddress, port);
+                DatagramPacket replyPacket = new DatagramPacket(data, data.length, IPAddress, port); //Sends the list of all nodes back to the pinging node
                 
                 socket.send(replyPacket);
                 Thread.sleep(2000);
