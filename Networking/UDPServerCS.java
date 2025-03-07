@@ -45,9 +45,11 @@ public class UDPServerCS
                 int port = incomingPacket.getPort();
                 String message = nodeMap.get(IPAddress.getHostAddress() + ":" + port).getFileNames(); //version used for now, would actually be data
                     
-                System.out.println("Received message from client: " + message);
-                System.out.println("Client IP:" + IPAddress.getHostAddress());
-                System.out.println("Client port:" + port);
+                // System.out.println("Received message from client: " + message);
+                // System.out.println("Client IP:" + IPAddress.getHostAddress());
+                // System.out.println("Client port:" + port);
+                Date time = new Date(System.currentTimeMillis());
+                System.out.println("Time Received: " + time + "\n" + nodeMap.get(incomingPacket.getAddress().getHostAddress() + ":" + incomingPacket.getPort()).toString());
 
                 //Packaging return HACProtocol
                 byte[] data;
