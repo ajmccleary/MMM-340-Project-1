@@ -27,7 +27,7 @@ public class UDPServerCS
         System.out.println("Server Successfully Booted\n~~Listening for connection~~");
         while(true) {
             try {
-                socket = new DatagramSocket(8002);
+                socket = new DatagramSocket(8001);
                 byte[] incomingData = new byte[1024];
                 
                 DatagramPacket incomingPacket = new DatagramPacket(incomingData, incomingData.length);
