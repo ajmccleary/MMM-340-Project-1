@@ -20,9 +20,9 @@ public class HACProtocol implements Serializable { //what class format? javadoc 
 
     /**
      * Constructor for HACProtocol packet
-     * @param version
-     * @param sequenceNumber
-     * @param localFiles
+     * @param version A string describing the version of the packet being used.
+     * @param sequenceNumber An integer to represent the packet order number, used for testing.
+     * @param localFiles An array of files stored in the packet.
      */
     public HACProtocol (String version, int sequenceNumber, File[] localFiles) {
         //initialize protocol control fields
@@ -36,9 +36,9 @@ public class HACProtocol implements Serializable { //what class format? javadoc 
 
     /**
      * Constructor for HACProtocol packet
-     * @param version
-     * @param sequenceNumber
-     * @param nodeArr
+     * @param version A string describing the version of the packet being used.
+     * @param sequenceNumber An integer to represent the packet order number, used for testing.
+     * @param nodeArr An array of nodes stored in the packet.
      */
     public HACProtocol(String version, int sequenceNumber, Node[] nodeArr) {
         this.version = version;

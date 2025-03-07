@@ -7,11 +7,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 
 /**
+ * UDPServerCS is a server implementation using UDP sockets. 
+ * It listens for incoming packets, processes them, and maintains a list of active nodes.
  * 
- * @author cjaiswal
- *
- *  
- * 
+ * @author Mischevious Mushroom Men
  */
 public class UDPServerCS
 {
@@ -53,6 +52,10 @@ public class UDPServerCS
                         ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream)) {
                             Node[] tempArr = nodeMap.values().toArray(new Node[nodeMap.size()]);
                             HACProtocol sentObject = new HACProtocol("CS", 0, tempArr);
+
+                            for(Node node:tempArr) {
+                                System.out.print("Node: " + node.getID() + " Is Online?: " + !node.timeOut() + "\t");
+                            }
 
                             try {
                                 objectOutputStream.writeObject(sentObject);
