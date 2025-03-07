@@ -52,8 +52,8 @@ public class UDPClientCS {
                 sendAvailability();  //send client's availability and file listing to the server
                 receiveServerResponse(); //wait for and process server updates
                 
-                // sleep for a random time between 0-30 seconds before sending the next update
-                int sleepTime = random.nextInt(31) * 1000; // convert to milliseconds
+                // sleep for a random time between 1-30 seconds before sending the next update
+                int sleepTime = (random.nextInt(30) + 1) * 1000; // convert to milliseconds
                 System.out.println("Next update in " + (sleepTime / 1000) + " seconds...");
                 Thread.sleep(sleepTime); //pause execution for the random interval
             }
