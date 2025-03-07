@@ -6,10 +6,16 @@ import java.security.SecureRandom;
 import java.util.*;
 
 /**
- * 
- * @author cjaiswal
+ * UDPClientCS is a UDP client that communicates with a server
+ * to send availability status and receive server responses.
+ * It reads server details from an ipConfig.txt file and continuously
+ * sends updates at random intervals.
  *
- *  
+ * This client sends serialized HACProtocol objects containing
+ * file availability information and receives updates about
+ * active nodes from the server.
+ * 
+ * @author Andrew McCleary, Aislin Hayes, Brady Galligan
  * 
  */
 public class UDPClientCS {
