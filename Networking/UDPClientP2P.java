@@ -10,7 +10,7 @@ import java.util.concurrent.*;
  * 
  * A UDP client peer to peer network implementation.
  * Contains a listening thread, sending thread, down detection thread, and printing thread (end of main).
- * @author Andrew McCleary, Aislin Hayes, Brady Galligan
+ * @author Mischievous Mushroom Men
  * 
  */
 public class UDPClientP2P {
@@ -19,7 +19,6 @@ public class UDPClientP2P {
     private static ExecutorService executorService;
     private static int nodeNum; //0-6, correlate to line of ipconfig to assign socket to
     private static int portNum;
-    private static InetAddress ipAddress;
     private static int sequenceNum = 0;
     private static double lastUpdate;
     private static ConcurrentHashMap<String,Node> nodeMap = new ConcurrentHashMap<String,Node>();
@@ -50,7 +49,6 @@ public class UDPClientP2P {
                 //check if count matches assigned client node num
                 if (count == UDPClientP2P.nodeNum) {
                     newNode.setToSelf();
-                    UDPClientP2P.ipAddress = InetAddress.getByName(newNode.getIP());
                     UDPClientP2P.portNum = newNode.getPort();
                 }
 
@@ -65,8 +63,6 @@ public class UDPClientP2P {
             } while (fileInput.hasNextLine());
         } catch (FileNotFoundException e) { //catch potential error thrown by scanner
 			e.printStackTrace();
-		} catch (UnknownHostException e) {
-            e.printStackTrace();
         }
 
         //connect to specified socket

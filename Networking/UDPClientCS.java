@@ -2,6 +2,7 @@ package Networking;
 
 import java.io.*;
 import java.net.*;
+import java.security.SecureRandom;
 import java.util.*;
 
 /**
@@ -15,13 +16,13 @@ public class UDPClientCS {
     private DatagramSocket socket;
     private static InetAddress serverAddress; //server's Ip address
     private static int serverPort; // servers port number
-    private Random random; //generating random intervals 
+    private SecureRandom random; //generating random intervals 
 
     //initialize scanner variables
 	private static File inFile = new File("ipConfig.txt");
     private static String nextLine;
 
-    public UDPClientCS(){
+    public UDPClientCS() {
     	try {
             try (Scanner fileInput = new Scanner(inFile)) { //initialize scanner
             //store next line input
@@ -38,7 +39,7 @@ public class UDPClientCS {
 
         	//UDP socket with a randomly assigned avaiable port
 			socket = new DatagramSocket();
-            random = new Random(); //initalizae random number generator 
+            random = new SecureRandom(); //initalizae random number generator 
 		} 
     	catch (SocketException e){
 			e.printStackTrace();
