@@ -62,14 +62,16 @@ public class UDPClientP2P {
                 count++;
             } while (fileInput.hasNextLine());
         } catch (FileNotFoundException e) { //catch potential error thrown by scanner
-			e.printStackTrace();
+			System.out.println("ipConfig.txt not found in root directory. Exiting program");
+            System.exit(1);
         }
 
         //connect to specified socket
         try {
             UDPClientP2P.Socket = new DatagramSocket(UDPClientP2P.portNum);
         } catch (SocketException e) {
-            e.printStackTrace();
+            System.out.println("Failed to create socket. Reason " + e.getMessage());
+            System.exit(1);
         }
     }
 
