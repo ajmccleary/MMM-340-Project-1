@@ -10,6 +10,7 @@ import java.io.Serializable;
 public class HACProtocol implements Serializable { //what class format? javadoc needed? tostring etc needed?
     //protocol control fields
     String version; //protocol version (do we need this?)
+    int sequenceNumber;
 
     //protocol data
     boolean nodesUp []; //array of booleans representing status of all other nodes
@@ -26,6 +27,7 @@ public class HACProtocol implements Serializable { //what class format? javadoc 
     public HACProtocol (String version, int sequenceNumber, File[] localFiles) {
         //initialize protocol control fields
         this.version = version;
+        this.sequenceNumber = sequenceNumber;
 
         //initialize protocol data
         this.nodesUp = new boolean[6];
@@ -40,6 +42,7 @@ public class HACProtocol implements Serializable { //what class format? javadoc 
      */
     public HACProtocol(String version, int sequenceNumber, Node[] nodeArr) {
         this.version = version;
+        this.sequenceNumber = sequenceNumber;
         this.nodesUp = new boolean[6];
         this.nodeArr = nodeArr;
     }
