@@ -4,6 +4,8 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 /**
@@ -14,6 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class UDPServerCS
 {
+    private static ExecutorService executorService;
     DatagramSocket socket = null;
     private static ConcurrentHashMap<String, Node> nodeMap = new ConcurrentHashMap<String, Node>();
 
@@ -106,8 +109,11 @@ public class UDPServerCS
         public static void main(String[] args) 
         {
             UDPServerCS server = new UDPServerCS();
+            
+            executorService = Executors.newFixedThreadPool(1);
+            executorService.submit(() -> UDPServerCS.runLoop());
             server.createAndListenSocket();
-            server.runLoop();
+
         }
     }
 
