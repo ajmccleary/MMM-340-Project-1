@@ -6,10 +6,20 @@
     "configurations": [
         {
             "type": "java",
-            "name": "UDPClientMC",
+            "name": "UDPClientCS",
             "request": "launch",
-            "mainClass": "Networking.UDPClientMC",
+            "mainClass": "Networking.UDPClientCS",
             "projectName": "MMM-340-Project-1_aa0eae5e"
+        },
+        {
+            "type": "java",
+            "name": "UDPClientP2P",
+            "request": "launch",
+            "mainClass": "Networking.UDPClientP2P",
+            "projectName": "MMM-340-Project-1_aa0eae5e",
+            "args" : [
+                0
+            ]
         },
         {
             "type": "java",
@@ -25,133 +35,5 @@
             "mainClass": "Networking.UDPServerMC",
             "projectName": "MMM-340-Project-1_633f6d82"
         },
-        {
-            "type": "java",
-            "name": "UDPServerMC",
-            "request": "launch",
-            "mainClass": "Source.UDPServerMC",
-            "projectName": "MMM-340-Project-1_633f6d82"
-        },
-        {
-            "type": "java",
-            "name": "UDPClient",
-            "request": "launch",
-            "mainClass": "Networking.UDPClient",
-            "projectName": "MMM-340-Project-1_aa0eae5e",
-            "args": [
-                1
-            ]
-        },
-        {
-            "type": "java",
-            "name": "UDPClient2",
-            "request": "launch",
-            "mainClass": "Networking.UDPClient2",
-            "projectName": "MMM-340-Project-1_633f6d82"
-        },
-        {
-            "type": "java",
-            "name": "UDPServer2",
-            "request": "launch",
-            "mainClass": "Networking.UDPServer2",
-            "projectName": "MMM-340-Project-1_633f6d82"
-        },
-        {
-            "type": "java",
-            "name": "UDPServer",
-            "request": "launch",
-            "mainClass": "Networking.UDPServer",
-            "projectName": "MMM-340-Project-1_633f6d82"
-        },
-        {
-            "type": "java",
-            "name": "MainScreen",
-            "request": "launch",
-            "mainClass": "UIElements.MainScreen",
-            "projectName": "MMM-340-Project-1_633f6d82"
-        },
-        {
-            "type": "java",
-            "name": "Current File",
-            "request": "launch",
-            "mainClass": "${file}"
-        },
-        {
-            "type": "java",
-            "name": "ECClient",
-            "request": "launch",
-            "mainClass": "ECClient",
-            "projectName": "MMM-340-Project-1_aa0eae5e"
-        },
-        {
-            "type": "java",
-            "name": "ECServer",
-            "request": "launch",
-            "mainClass": "ECServer",
-            "projectName": "MMM-340-Project-1_aa0eae5e"
-        },
-        {
-            "type": "java",
-            "name": "MyFileReader",
-            "request": "launch",
-            "mainClass": "Networking.MyFileReader",
-            "projectName": "MMM-340-Project-1_aa0eae5e"
-        },
-        {
-            "type": "java",
-            "name": "TCPClient",
-            "request": "launch",
-            "mainClass": "Networking.TCPClient",
-            "projectName": "MMM-340-Project-1_aa0eae5e"
-        },
-        {
-            "type": "java",
-            "name": "TCPClientFile",
-            "request": "launch",
-            "mainClass": "Networking.TCPClientFile",
-            "projectName": "MMM-340-Project-1_aa0eae5e"
-        },
-        {
-            "type": "java",
-            "name": "TCPServer",
-            "request": "launch",
-            "mainClass": "Networking.TCPServer",
-            "projectName": "MMM-340-Project-1_aa0eae5e"
-        },
-        {
-            "type": "java",
-            "name": "TCPServerFile",
-            "request": "launch",
-            "mainClass": "Networking.TCPServerFile",
-            "projectName": "MMM-340-Project-1_aa0eae5e"
-        },
-        {
-            "type": "java",
-            "name": "UDPClient2",
-            "request": "launch",
-            "mainClass": "Networking.UDPClient2",
-            "projectName": "MMM-340-Project-1_aa0eae5e"
-        },
-        {
-            "type": "java",
-            "name": "UDPServer",
-            "request": "launch",
-            "mainClass": "Networking.UDPServer",
-            "projectName": "MMM-340-Project-1_aa0eae5e"
-        },
-        {
-            "type": "java",
-            "name": "UDPServer2",
-            "request": "launch",
-            "mainClass": "Networking.UDPServer2",
-            "projectName": "MMM-340-Project-1_aa0eae5e"
-        },
-        {
-            "type": "java",
-            "name": "MainScreen",
-            "request": "launch",
-            "mainClass": "UIElements.MainScreen",
-            "projectName": "MMM-340-Project-1_aa0eae5e"
-        }
     ]
 }

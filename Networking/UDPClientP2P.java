@@ -8,16 +8,16 @@ import java.util.concurrent.*;
 
 /**
  * 
- * @author cjaiswal
- *
- *  
+ * A UDP client peer to peer network implementation.
+ * Contains a listening thread, sending thread, down detection thread, and printing thread (end of main).
+ * @author Andrew McCleary, Aislin Hayes, Brady Galligan
  * 
  */
-public class UDPClient {
+public class UDPClientP2P {
     //class variables
     private static DatagramSocket Socket;
     private static ExecutorService executorService;
-    static int nodeNum; //0-6, correlate to line of ipconfig to assign socket to
+    private static int nodeNum; //0-6, correlate to line of ipconfig to assign socket to
     private static int portNum;
     private static InetAddress ipAddress;
     private static int sequenceNum = 0;
@@ -29,7 +29,12 @@ public class UDPClient {
 	private static File inFile = new File("ipConfig.txt");
     private static String nextLine;
 
-    public UDPClient() {
+    /**
+     * Constructor for UDPClient object.
+     * Reads in from ipConfig.txt to get IPs and port nums of other nodes before storing them in the nodeMap.
+     * Initializes and binds socket to the IP and port number specified by command line input.
+     */
+    public UDPClientP2P() {
         try (Scanner fileInput = new Scanner(inFile)) { //initialize scanner
             //initialize count variable
             int count = 0;
@@ -43,10 +48,10 @@ public class UDPClient {
                 Node newNode = new Node(nextLine.split(" ")[0], Integer.parseInt(nextLine.split(" ")[1]), new ArrayList<File>());
 
                 //check if count matches assigned client node num
-                if (count == UDPClient.nodeNum) {
+                if (count == UDPClientP2P.nodeNum) {
                     newNode.setToSelf();
-                    UDPClient.ipAddress = InetAddress.getByName(newNode.getIP());
-                    UDPClient.portNum = newNode.getPort();
+                    UDPClientP2P.ipAddress = InetAddress.getByName(newNode.getIP());
+                    UDPClientP2P.portNum = newNode.getPort();
                 }
 
                 //check if newNode is NOT node representing this computer
@@ -66,7 +71,7 @@ public class UDPClient {
 
         //connect to specified socket
         try {
-            UDPClient.Socket = new DatagramSocket(UDPClient.portNum, UDPClient.ipAddress);
+            UDPClientP2P.Socket = new DatagramSocket(UDPClientP2P.portNum);
         } catch (SocketException e) {
             e.printStackTrace();
         }
@@ -74,8 +79,7 @@ public class UDPClient {
 
     
     /**
-     * Runs a loop on a thread that triggers once/sec to uptick node heartbeat
-     * @return void
+     * Thread function which runs a loop on a thread that triggers once/sec to uptick node heartbeat.
      */
     public static void runLoop() {
         Collection<Node> nodeList = nodeMap.values();
@@ -89,7 +93,10 @@ public class UDPClient {
         }
     }
 
-    //thread function to listen for incoming packets
+    /**
+     * Thread function which continously listens for incoming packets,
+     * then deserializes them and stores their data upon reception.
+     */
     public void listenSocket() {
         //loop indefinitely
         while (true) {
@@ -99,7 +106,7 @@ public class UDPClient {
             
             try {
                 //receive incoming data
-                UDPClient.Socket.receive(incomingPacket);
+                UDPClientP2P.Socket.receive(incomingPacket);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -133,7 +140,10 @@ public class UDPClient {
         }
     }
 
-    //thread function to send heartbeat packets to all other nodes
+    /**
+     * Thread function which sends packets to all other nodes on the network.
+     * Runs indefinitely, sending packets at random 0-30 second intervals.
+    */
     public void sendPulse() {
         //initialize rng
         SecureRandom random = new SecureRandom();
@@ -154,7 +164,7 @@ public class UDPClient {
                 
                     //access, store, and send local files held on machine using MyFileReader class
                     File localFiles[] = (File[]) MyFileReader.FileReader().toArray(new File[0]);
-                    HACProtocol testProtocolPacket = new HACProtocol("P2P", UDPClient.sequenceNum, localFiles);
+                    HACProtocol testProtocolPacket = new HACProtocol("P2P", UDPClientP2P.sequenceNum, localFiles);
 
                     //write protocol packet to byte array output stream
                     try {
@@ -168,7 +178,7 @@ public class UDPClient {
 
                     //send via UDP
                     DatagramPacket packet = new DatagramPacket(serializedObject, serializedObject.length, InetAddress.getByName(currentNode.getIP()), currentNode.getPort());
-                    UDPClient.Socket.send(packet);
+                    UDPClientP2P.Socket.send(packet);
 
                 } catch (UnknownHostException e) {
                     e.printStackTrace();
@@ -178,41 +188,36 @@ public class UDPClient {
             });
 
             //increment sequence num
-            UDPClient.sequenceNum++;
+            UDPClientP2P.sequenceNum++;
         }
     }
 
-    //getters
-    public static ConcurrentHashMap<String, Node> getMap() {return nodeMap;}
-
+    /**
+     * Main method to start UDP Peer To Peer Client.
+     * Initializes client object, starts the heartbeat thread,
+     * the listening thread, and the sending thread. Ends with the printing thread.
+     * 
+     * @param args First and only command line argument is the node number, 
+     * which correlates to the line of ipconfig to bind socket to.
+     */
     public static void main(String[] args) { //nodeNum (0)
         //get node number of client from command line args
-        UDPClient.nodeNum = Integer.parseInt(args[0]);
+        UDPClientP2P.nodeNum = Integer.parseInt(args[0]);
 
         //initialize client
-        UDPClient client = new UDPClient();
+        UDPClientP2P client = new UDPClientP2P();
 
         //initialize threadpool
         executorService = Executors.newFixedThreadPool(3);
         
         //heartbeat loop thread
-        executorService.submit(() -> UDPClient.runLoop());
+        executorService.submit(() -> UDPClientP2P.runLoop());
 
         //execute receiving thread
         executorService.submit(() -> client.listenSocket());
 
         //execute sending thread
         executorService.submit(() -> client.sendPulse());
-
-        //socket and executor service shut down hook thread
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            if (Socket != null && !Socket.isClosed()) {
-                Socket.close();
-            }
-            if (executorService != null) {
-                executorService.shutdown();
-            }
-        }));
 
         //perioidically print node data
         while (true) {

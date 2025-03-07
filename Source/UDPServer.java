@@ -1,4 +1,4 @@
-package Networking;
+package Source;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

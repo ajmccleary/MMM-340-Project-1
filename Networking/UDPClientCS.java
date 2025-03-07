@@ -1,19 +1,9 @@
 package Networking;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+
 /**
  * 
  * @author cjaiswal
@@ -21,32 +11,30 @@ import java.util.stream.Stream;
  *  
  * 
  */
-public class UDPClientMC {
+public class UDPClientCS {
     private DatagramSocket socket;
     private static InetAddress serverAddress; //server's Ip address
     private static int serverPort; // servers port number
     private Random random; //generating random intervals 
-    private static int nodeNum;
 
     //initialize scanner variables
 	private static File inFile = new File("ipConfig.txt");
     private static String nextLine;
 
-    public UDPClientMC(){
+    public UDPClientCS(){
     	try {
             try (Scanner fileInput = new Scanner(inFile)) { //initialize scanner
             //store next line input
             nextLine = fileInput.nextLine();
 
             //parse input and store in new node
-            UDPClientMC.serverAddress = InetAddress.getByName(nextLine.split(" ")[0]);
-            UDPClientMC.serverPort = Integer.parseInt(nextLine.split(" ")[1]);
+            UDPClientCS.serverAddress = InetAddress.getByName(nextLine.split(" ")[0]);
+            UDPClientCS.serverPort = Integer.parseInt(nextLine.split(" ")[1]);
         } catch (FileNotFoundException e) { //catch potential error thrown by scanner
 			e.printStackTrace();
 		} catch (UnknownHostException e) {
             e.printStackTrace();
         }
-
 
         	//UDP socket with a randomly assigned avaiable port
 			socket = new DatagramSocket();
@@ -55,18 +43,6 @@ public class UDPClientMC {
     	catch (SocketException e){
 			e.printStackTrace();
 		}
-        catch(IOException e){
-            e.printStackTrace();
-        }
-    }
-
-    private InetAddress readServerIP(String filename) throws IOException {
-        try (Scanner scanner = new Scanner(new File(filename))) {
-            if (scanner.hasNextLine()) {
-                return InetAddress.getByName(scanner.nextLine().trim());
-            }
-        }
-        throw new IOException("Could not read server IP from " + filename);
     }
 
     public void startClient(){
@@ -117,20 +93,6 @@ public class UDPClientMC {
         return new HACProtocol("1.0", new Random().nextInt(1000), fileArray);
     }
 
-
-
-     private File[] listFilesInDirectory(String directory) {
-        List<File> outFiles = new ArrayList<>();
-        try (Stream<Path> paths = Files.walk(Paths.get(directory))) {
-            outFiles = paths.filter(Files::isRegularFile)
-                            .map(Path::toFile)
-                            .collect(Collectors.toList());
-        } catch (IOException e) {
-            System.out.println("DEBUG: Error reading files in directory " + directory);
-        }
-        return outFiles.toArray(new File[0]);
-    }
-
     //recieves and processes the servers response, which clients are avaiabile and which are not 
     private void receiveServerResponse() {
         try {
@@ -152,7 +114,7 @@ public class UDPClientMC {
     }
 
     public static void main(String[] args) {
-        UDPClientMC client = new UDPClientMC();
+        UDPClientCS client = new UDPClientCS();
         client.startClient();
     }
 }

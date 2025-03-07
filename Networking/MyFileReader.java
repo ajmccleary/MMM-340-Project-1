@@ -23,7 +23,7 @@ public class MyFileReader {
                     .filter(Files::isRegularFile)
                     .collect(Collectors.toCollection(ArrayList::new));
             } catch(IOException e) {
-                System.out.println("DEBUG: Fuck Off I'm going to kill a man");
+                e.printStackTrace();
             }
             for(int i = 0; i<outList.size(); i++) {
                 outFiles.add(i, outList.get(i).toFile());

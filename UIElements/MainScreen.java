@@ -8,7 +8,7 @@ import javax.swing.JFrame;
 
 import Networking.MyFileReader;
 import Networking.Node;
-import Networking.UDPClient;
+import Networking.UDPClientP2P;
 
 
 public class MainScreen extends JFrame{
@@ -30,7 +30,7 @@ public class MainScreen extends JFrame{
                 }
                 public void addNode(Node node) {
                     nodeList.add(node);
-                    UDPClient.getMap().put(node.getID(), node);
+                    UDPClientP2P.getMap().put(node.getID(), node);
                     infoList.add(new NodeInfoScreen(this, node));
                     this.add(infoList.getLast());
                 }
