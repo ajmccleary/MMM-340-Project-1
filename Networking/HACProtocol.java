@@ -10,7 +10,6 @@ import java.io.Serializable;
 public class HACProtocol implements Serializable { //what class format? javadoc needed? tostring etc needed?
     //protocol control fields
     String version; //protocol version (do we need this?)
-    int sequenceNumber; //sequence of packet sent
 
     //protocol data
     boolean nodesUp []; //array of booleans representing status of all other nodes

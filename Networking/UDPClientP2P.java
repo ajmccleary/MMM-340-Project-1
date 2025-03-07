@@ -10,7 +10,7 @@ import java.util.concurrent.*;
  * 
  * A UDP client peer to peer network implementation.
  * Contains a listening thread, sending thread, down detection thread, and printing thread (end of main).
- * @author Mischievous Mushroom Men
+ * @author Mischievous Mushroom 
  * 
  */
 public class UDPClientP2P {

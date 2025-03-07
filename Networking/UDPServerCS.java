@@ -5,31 +5,29 @@ import java.net.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+
 /**
- * Class to run the Client-Server server implementation. Hosts an open socket
- * for the clients to connect to, then compiles a list of all the nodes to send
- * back
  * 
- * @author Mischevious Mushroom Men
+ * @author cjaiswal
+ *
+ *  
+ * 
  */
-public class UDPServerCS {
+public class UDPServerCS
+{
     DatagramSocket socket = null;
     private static ConcurrentHashMap<String, Node> nodeMap = new ConcurrentHashMap<String, Node>();
 
-    public UDPServerCS() {
+    public UDPServerCS() 
+    {
 
     }
-
-    /**
-     * Creates a socket to listen for individual client connections
-     */
+    
     public void createAndListenSocket() {
-        
-        System.out.println("Server Successfully Booted");
-        try {   
-            socket = new DatagramSocket(8002);
-            while(true) {
-                System.out.println("~~Listening for connection~~");
+        System.out.println("Server Successfully Booted\n~~Listening for connection~~");
+        while(true) {
+            try {
+                socket = new DatagramSocket(8001);
                 byte[] incomingData = new byte[1024];
                 
                 DatagramPacket incomingPacket = new DatagramPacket(incomingData, incomingData.length);
@@ -45,11 +43,15 @@ public class UDPServerCS {
 
                 InetAddress IPAddress = incomingPacket.getAddress();
                 int port = incomingPacket.getPort();
-
+                String message = nodeMap.get(IPAddress.getHostAddress() + ":" + port).getFileNames(); //version used for now, would actually be data
+                    
+                // System.out.println("Received message from client: " + message);
+                // System.out.println("Client IP:" + IPAddress.getHostAddress());
+                // System.out.println("Client port:" + port);
                 Date time = new Date(System.currentTimeMillis());
                 System.out.println("Time Received: " + time + "\n" + nodeMap.get(incomingPacket.getAddress().getHostAddress() + ":" + incomingPacket.getPort()).toString());
 
-                //Packaging the return HACProtocol
+                //Packaging return HACProtocol
                 byte[] data;
                 try(ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(); //initialize byteArrayOutputStream
                     ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream)) {
@@ -72,26 +74,28 @@ public class UDPServerCS {
 
                 // socket.close();
             } 
-        }
-        catch (SocketException e) 
-        {
-            e.printStackTrace();
-        } 
-        catch (IOException i) 
-        {
-            i.printStackTrace();
-        } 
-        catch (InterruptedException e) 
-        {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) 
-        {
-            e.printStackTrace();
+            catch (SocketException e) 
+            {
+                e.printStackTrace();
+            } 
+            catch (IOException i) 
+            {
+                i.printStackTrace();
+            } 
+            catch (InterruptedException e) 
+            {
+                e.printStackTrace();
+            } catch (ClassNotFoundException e) 
+            {
+                e.printStackTrace();
+            }
         }
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) 
+    {
         UDPServerCS server = new UDPServerCS();
         server.createAndListenSocket();
     }
 }
+
