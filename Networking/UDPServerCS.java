@@ -25,49 +25,49 @@ public class UDPServerCS
     
     public void createAndListenSocket() {
         System.out.println("Server Successfully Booted\n~~Listening for connection~~");
-        while(true) {
             try {
                 socket = new DatagramSocket(8001);
-                byte[] incomingData = new byte[1024];
+                while(true) {
+                    byte[] incomingData = new byte[1024];
+                    
+                    DatagramPacket incomingPacket = new DatagramPacket(incomingData, incomingData.length);
+                    socket.receive(incomingPacket);
+
+                    //deserialize received packet
+                    ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(incomingPacket.getData(), 0, incomingPacket.getLength());
+                    ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream);
+                    HACProtocol receivedObject = (HACProtocol)objectInputStream.readObject();
+
+                    nodeMap.put(incomingPacket.getAddress().getHostAddress() + ":" + incomingPacket.getPort(), new Node(incomingPacket.getAddress().getHostAddress(), incomingPacket.getPort(), new ArrayList<File>(Arrays.asList(receivedObject.getLocalFiles()))));
+                    nodeMap.get(incomingPacket.getAddress().getHostAddress() + ":" + incomingPacket.getPort()).heartbeatRecieved(); //Updates the node to have received it's heartbeat message
+
+                    InetAddress IPAddress = incomingPacket.getAddress();
+                    int port = incomingPacket.getPort();
                 
-                DatagramPacket incomingPacket = new DatagramPacket(incomingData, incomingData.length);
-                socket.receive(incomingPacket);
+                    Date time = new Date(System.currentTimeMillis());
+                    System.out.println("Time Received: " + time + "\n" + nodeMap.get(incomingPacket.getAddress().getHostAddress() + ":" + incomingPacket.getPort()).toString());
 
-                //deserialize received packet
-                ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(incomingPacket.getData(), 0, incomingPacket.getLength());
-                ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream);
-                HACProtocol receivedObject = (HACProtocol)objectInputStream.readObject();
+                    //Packaging return HACProtocol
+                    byte[] data;
+                    try(ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(); //initialize byteArrayOutputStream
+                        ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream)) {
+                            Node[] tempArr = nodeMap.values().toArray(new Node[nodeMap.size()]);
+                            HACProtocol sentObject = new HACProtocol("CS", 0, tempArr);
 
-                nodeMap.put(incomingPacket.getAddress().getHostAddress() + ":" + incomingPacket.getPort(), new Node(incomingPacket.getAddress().getHostAddress(), incomingPacket.getPort(), new ArrayList<File>(Arrays.asList(receivedObject.getLocalFiles()))));
-                nodeMap.get(incomingPacket.getAddress().getHostAddress() + ":" + incomingPacket.getPort()).heartbeatRecieved(); //Updates the node to have received it's heartbeat message
+                            try {
+                                objectOutputStream.writeObject(sentObject);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
 
-                InetAddress IPAddress = incomingPacket.getAddress();
-                int port = incomingPacket.getPort();
-            
-                Date time = new Date(System.currentTimeMillis());
-                System.out.println("Time Received: " + time + "\n" + nodeMap.get(incomingPacket.getAddress().getHostAddress() + ":" + incomingPacket.getPort()).toString());
-
-                //Packaging return HACProtocol
-                byte[] data;
-                try(ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(); //initialize byteArrayOutputStream
-                    ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream)) {
-                        Node[] tempArr = nodeMap.values().toArray(new Node[nodeMap.size()]);
-                        HACProtocol sentObject = new HACProtocol("CS", 0, tempArr);
-
-                        try {
-                            objectOutputStream.writeObject(sentObject);
-                        } catch (IOException e) {
-                            e.printStackTrace();
+                            data = byteArrayOutputStream.toByteArray();
                         }
-
-                        data = byteArrayOutputStream.toByteArray();
-                    }
-                    
-                DatagramPacket replyPacket = new DatagramPacket(data, data.length, IPAddress, port); //Sends the list of all nodes back to the pinging node
-                    
-                socket.send(replyPacket);
-                Thread.sleep(2000);
-
+                        
+                    DatagramPacket replyPacket = new DatagramPacket(data, data.length, IPAddress, port); //Sends the list of all nodes back to the pinging node
+                        
+                    socket.send(replyPacket);
+                    Thread.sleep(2000);
+                }
                 // socket.close();
             } 
             catch (SocketException e) 
@@ -86,12 +86,12 @@ public class UDPServerCS
                 e.printStackTrace();
             }
         }
+        public static void main(String[] args) 
+        {
+            UDPServerCS server = new UDPServerCS();
+            server.createAndListenSocket();
+        }
     }
 
-    public static void main(String[] args) 
-    {
-        UDPServerCS server = new UDPServerCS();
-        server.createAndListenSocket();
-    }
-}
+    
 
