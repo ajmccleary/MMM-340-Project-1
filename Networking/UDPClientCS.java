@@ -103,8 +103,13 @@ public class UDPClientCS {
             // Deserialize the received object
             ObjectInputStream objectStream = new ObjectInputStream(new ByteArrayInputStream(incomingPacket.getData()));
             HACProtocol response = (HACProtocol) objectStream.readObject();
+            Node[] tempNodeArr = response.getNodeArray();
+            String parsedResponse = "";
+            for(Node node:tempNodeArr) {
+                parsedResponse += node.toString() + "\n";
+            }
             
-            System.out.println("Server Response: " + response);
+            System.out.println("~~~~~~~~~~~~~~~~\nServer Response: \n" + parsedResponse + "\n~~~~~~~~~~~~~~~~~~");
 
         } catch (IOException e) {
             e.printStackTrace();

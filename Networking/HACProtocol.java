@@ -32,4 +32,5 @@ public class HACProtocol implements Serializable { //what class format? javadoc 
     }
 
     public File[] getLocalFiles() { return localFiles; }
+    public Node[] getNodeArray() { return nodeArr; }
 }
