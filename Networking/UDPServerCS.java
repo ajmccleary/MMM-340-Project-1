@@ -70,7 +70,7 @@ public class UDPServerCS {
                 socket.send(replyPacket);
                 Thread.sleep(2000);
 
-                socket.close();
+                // socket.close();
             } 
         }
         catch (SocketException e) 
