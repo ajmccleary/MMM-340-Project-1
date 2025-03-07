@@ -9,6 +9,13 @@
             "name": "UDPServerCS",
             "request": "launch",
             "mainClass": "Networking.UDPServerCS",
+            "projectName": "MMM-340-Project-1_633f6d82"
+        },
+        {
+            "type": "java",
+            "name": "UDPServerCS",
+            "request": "launch",
+            "mainClass": "Networking.UDPServerCS",
             "projectName": "MMM-340-Project-1_aa0eae5e"
         },
         {
@@ -27,6 +34,6 @@
             "args": [
                 0
             ]
-        },
+        }
     ]
 }
