@@ -20,107 +20,129 @@ import java.util.*;
  */
 public class UDPClientCS {
     private DatagramSocket socket;
-    private static InetAddress serverAddress; //server's Ip address
-    private static int serverPort; // servers port number
-    private SecureRandom random; //generating random intervals 
+    private static InetAddress serverAddress;
+    private static int serverPort;
+    private SecureRandom random;
 
-    //initialize scanner variables
-	private static File inFile = new File("ipConfig.txt");
+    private static final File inFile = new File("ipConfig.txt");
     private static String nextLine;
 
     public UDPClientCS() {
-    	try {
-            try (Scanner fileInput = new Scanner(inFile)) { //initialize scanner
-            //store next line input
+        try (Scanner fileInput = new Scanner(inFile)) {
+            //ensure the configuration file exists
+            if (!inFile.exists()) {
+                throw new FileNotFoundException("Configuration file not found: " + inFile.getAbsolutePath());
+            }
+
+            //read the first line of the file and parse IP and port
             nextLine = fileInput.nextLine();
+            String[] configParts = nextLine.split(" ");
+            if (configParts.length != 2) {
+                throw new IllegalArgumentException("Invalid configuration format in ipConfig.txt");
+            }
 
-            //parse input and store in new node
-            UDPClientCS.serverAddress = InetAddress.getByName(nextLine.split(" ")[0]);
-            UDPClientCS.serverPort = Integer.parseInt(nextLine.split(" ")[1]);
-        } catch (FileNotFoundException e) { //catch potential error thrown by scanner
-			e.printStackTrace();
-		} catch (UnknownHostException e) {
+            //resolve the server's address and port
+            serverAddress = InetAddress.getByName(configParts[0]);
+            serverPort = Integer.parseInt(configParts[1]);
+
+            //create a UDP socket for communication
+            socket = new DatagramSocket();
+            random = new SecureRandom();
+
+        } catch (FileNotFoundException e) {
+            System.err.println("Error: Unable to find configuration file. Please ensure ipConfig.txt exists.");
+            System.exit(1); //exit since the client cannot run without server details
+        } catch (UnknownHostException e) {
+            System.err.println("Error: Invalid server address in ipConfig.txt.");
+            System.exit(1); //exit since an invalid address makes communication impossible
+        } catch (NumberFormatException e) {
+            System.err.println("Error: Invalid port number format in ipConfig.txt.");
+            System.exit(1); //exit since the port number must be a valid integer
+        } catch (SocketException e) {
+            System.err.println("Error: Unable to create UDP socket.");
             e.printStackTrace();
+            System.exit(1); //exit since a working socket is required for communication
+        } catch (IllegalArgumentException e) {
+            System.err.println("Error: " + e.getMessage());
+            System.exit(1); //exit since the configuration file format is incorrect
         }
-
-        	//UDP socket with a randomly assigned avaiable port
-			socket = new DatagramSocket();
-            random = new SecureRandom(); //initalizae random number generator 
-		} 
-    	catch (SocketException e){
-			e.printStackTrace();
-		}
     }
 
-    public void startClient(){
+    //starts the client, sending periodic availability updates and listening for server responses.
+    public void startClient() {
         try {
             while (true) {
-                sendAvailability();  //send client's availability and file listing to the server
-                receiveServerResponse(); //wait for and process server updates
-                
-                // sleep for a random time between 1-30 seconds before sending the next update
-                int sleepTime = (random.nextInt(30) + 1) * 1000; // convert to milliseconds
+                sendAvailability(); //send node availability data
+                receiveServerResponse(); //listen for server response
+
+                //sleep for a random interval (0-30 seconds) before sending the next update
+                int sleepTime = random.nextInt(31) * 1000;
                 System.out.println("Next update in " + (sleepTime / 1000) + " seconds...");
-                Thread.sleep(sleepTime); //pause execution for the random interval
+                Thread.sleep(sleepTime);
             }
         } catch (InterruptedException e) {
-            e.printStackTrace();
-        } finally{
-            socket.close(); //close the socket when the client is done
+            System.err.println("Client interrupted. Shutting down...");
+            Thread.currentThread().interrupt(); // Restore interrupted status
+        } finally {
+            socket.close(); //ensure socket is closed before exiting
         }
-    } 
-    
-    //sending the avaiablilty of the client to the server
-    private void sendAvailability(){
+    }
+
+    //sends availability information to the server.
+    private void sendAvailability() {
         try {
-            HACProtocol availabilityData = generateAvailabilityPacket(); //generate availability data
-            
-            //serialize the HACProtocol object to a byte array
+            HACProtocol availabilityData = generateAvailabilityPacket();
             ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
             ObjectOutputStream objectStream = new ObjectOutputStream(byteStream);
             objectStream.writeObject(availabilityData);
             objectStream.flush();
-            
-            byte[] data = byteStream.toByteArray(); //convert to byte array
-            
-            //create and send a UDP packet to the server
+
+            byte[] data = byteStream.toByteArray();
             DatagramPacket sendPacket = new DatagramPacket(data, data.length, serverAddress, serverPort);
             socket.send(sendPacket);
             System.out.println("Sent: " + availabilityData);
         } catch (IOException e) {
+            System.err.println("Error: Failed to send availability update to server.");
             e.printStackTrace();
         }
-    }    
-    
-    //generate a string that represents the client's avaibility and file listing 
+    }
+
+    /**
+     * Generates an HACProtocol packet containing this node's file listing.
+     * returns HACProtocol object with the availability data.
+     */
     private HACProtocol generateAvailabilityPacket() {
+        //read the list of files available locally
         ArrayList<File> localFiles = MyFileReader.FileReader();
         Node fileNode = new Node("localhost", serverPort, localFiles);
-        File[] fileArray = fileNode.getFileList().toArray(new File[0]); // Convert ArrayList<File> to File[]
+        File[] fileArray = fileNode.getFileList().toArray(new File[0]);
         return new HACProtocol("1.0", new Random().nextInt(1000), fileArray);
     }
 
-    //recieves and processes the servers response, which clients are avaiabile and which are not 
+    //receives and processes responses from the server
     private void receiveServerResponse() {
         try {
-           byte[] buffer = new byte[1024]; // Buffer to store incoming data
+            byte[] buffer = new byte[1024];
             DatagramPacket incomingPacket = new DatagramPacket(buffer, buffer.length);
-            socket.receive(incomingPacket); // Wait for a packet from the server
-            
-            // Deserialize the received object
+            socket.receive(incomingPacket); // Wait for response
+
+            //deserialize the received object
             ObjectInputStream objectStream = new ObjectInputStream(new ByteArrayInputStream(incomingPacket.getData()));
             HACProtocol response = (HACProtocol) objectStream.readObject();
-            Node[] tempNodeArr = response.getNodeArray();
-            String parsedResponse = "";
-            for(Node node:tempNodeArr) {
-                parsedResponse += node.toString() + "\n";
-            }
             
+            //parse and print the server's response
+            StringBuilder parsedResponse = new StringBuilder();
+            for (Node node : response.getNodeArray()) {
+                parsedResponse.append(node.toString()).append("\n");
+            }
+
             System.out.println("~~~~~~~~~~~~~~~~\nServer Response: \n" + parsedResponse + "\n~~~~~~~~~~~~~~~~~~");
 
         } catch (IOException e) {
+            System.err.println("Error: Failed to receive or process server response.");
             e.printStackTrace();
-        } catch (ClassNotFoundException e){
+        } catch (ClassNotFoundException e) {
+            System.err.println("Error: Received an unknown object from the server.");
             e.printStackTrace();
         }
     }
