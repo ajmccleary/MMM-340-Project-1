@@ -21,6 +21,19 @@ public class UDPServerCS
     {
 
     }
+
+    private static double lastUpdate;
+    public static void runLoop() {
+        Collection<Node> nodeList = nodeMap.values();
+        lastUpdate = 0;
+        while(true) {
+            if(System.nanoTime()/1000000000-lastUpdate>=1) {
+                lastUpdate = System.nanoTime()/1000000000;
+                //Ping all things that need to activate once/sec
+                for(Node node: nodeList) { node.heartbeat(); }
+            }
+        }
+    }
     
     public void createAndListenSocket() {
         System.out.println("Server Successfully Booted\n~~Listening for connection~~");
@@ -56,6 +69,7 @@ public class UDPServerCS
                             for(Node node:tempArr) {
                                 System.out.print("Node: " + node.getID() + " Is Online?: " + !node.timeOut() + "\t");
                             }
+                            System.out.println("\n");
 
                             try {
                                 objectOutputStream.writeObject(sentObject);
@@ -67,9 +81,9 @@ public class UDPServerCS
                         }
                         
                     DatagramPacket replyPacket = new DatagramPacket(data, data.length, IPAddress, port); //Sends the list of all nodes back to the pinging node
-                        
-                    socket.send(replyPacket);
+                    
                     Thread.sleep(2000);
+                    socket.send(replyPacket);
                 }
                 // socket.close();
             } 
@@ -93,6 +107,7 @@ public class UDPServerCS
         {
             UDPServerCS server = new UDPServerCS();
             server.createAndListenSocket();
+            server.runLoop();
         }
     }
 
