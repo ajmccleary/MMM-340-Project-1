@@ -122,7 +122,7 @@ public class UDPClientCS {
     //receives and processes responses from the server
     private void receiveServerResponse() {
         try {
-            byte[] buffer = new byte[1024];
+            byte[] buffer = new byte[65000];
             DatagramPacket incomingPacket = new DatagramPacket(buffer, buffer.length);
             socket.receive(incomingPacket); // Wait for response
 
