@@ -78,7 +78,7 @@ public class Node implements Serializable{
      */
     @Override
     public String toString() {
-        return "ID: " + this.IPAddress + ":" + this.portNum + "Is Online?: " + this.timeOut() + "\nFile List: \n" + this.getFileNames();
+        return "ID: " + this.IPAddress + ":" + this.portNum + " Is Online?: " + !this.timeOut() + "\nFile List: \n" + this.getFileNames();
     }
 
     /**
